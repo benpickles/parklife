@@ -25,5 +25,9 @@ module Parklife
     def size
       routes.size
     end
+
+    def to_a
+      routes.to_a
+    end
   end
 end

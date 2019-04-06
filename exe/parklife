@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+require 'parklife/cli'
+Parklife::CLI.start(ARGV)
