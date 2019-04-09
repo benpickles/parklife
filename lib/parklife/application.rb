@@ -37,7 +37,7 @@ module Parklife
 
       routes.each do |route|
         session.visit(route)
-        session.save_page(Utils.build_path(build_dir, route))
+        session.save_page(Utils.build_path_for(dir: build_dir, path: route))
         print '.'
       end
 
