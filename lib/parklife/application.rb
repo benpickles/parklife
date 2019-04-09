@@ -2,12 +2,10 @@ require 'capybara'
 require 'fileutils'
 require 'parklife/route_set'
 require 'parklife/utils'
-require 'rack/builder'
 
 module Parklife
   class Application
-    attr_accessor :build_dir
-    attr_reader :rack_app
+    attr_accessor :build_dir, :rack_app
 
     def initialize
       @after_build_callbacks = []
@@ -46,14 +44,6 @@ module Parklife
       after_build_callbacks.each do |callback|
         callback.call(self)
       end
-    end
-
-    def rack_app=(app)
-      @rack_app = Rack::Builder.new do
-        map '/' do
-          run app
-        end
-      end.to_app
     end
 
     def routes(&block)
