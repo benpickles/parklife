@@ -1,5 +1,6 @@
 require 'capybara'
 require 'fileutils'
+require 'parklife/errors'
 require 'parklife/route_set'
 require 'parklife/utils'
 
@@ -7,7 +8,9 @@ module Parklife
   class Application
     attr_accessor :build_dir, :rack_app
 
-    def initialize
+    def initialize(build_dir: nil, rack_app: nil)
+      @build_dir = build_dir
+      @rack_app = rack_app
       @after_build_callbacks = []
       @before_build_callbacks = []
       @routes = RouteSet.new
@@ -22,9 +25,13 @@ module Parklife
     end
 
     def build
+      raise BuildDirNotDefinedError if build_dir.nil?
+      raise RackAppNotDefinedError if rack_app.nil?
+
       Capybara.save_path = build_dir
 
       FileUtils.rm_rf(build_dir)
+      Dir.mkdir(build_dir)
 
       before_build_callbacks.each do |callback|
         callback.call(self)

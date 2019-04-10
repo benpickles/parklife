@@ -15,5 +15,5 @@ Parklife.application.before_build do |app|
   rake_app.load_rakefile
   rake_app['assets:precompile'].invoke
 
-  FileUtils.cp_r(Rails.root.join('public'), app.build_dir)
+  FileUtils.cp_r(Rails.root.join('public/.'), app.build_dir)
 end
