@@ -1,16 +1,18 @@
 require 'capybara'
 require 'fileutils'
 require 'parklife/errors'
+require 'parklife/null_reporter'
 require 'parklife/route_set'
 require 'parklife/utils'
 
 module Parklife
   class Application
-    attr_accessor :build_dir, :rack_app
+    attr_accessor :build_dir, :rack_app, :reporter
 
-    def initialize(build_dir: nil, rack_app: nil)
+    def initialize(build_dir: nil, rack_app: nil, reporter: NullReporter.new)
       @build_dir = build_dir
       @rack_app = rack_app
+      @reporter = reporter
       @after_build_callbacks = []
       @before_build_callbacks = []
       @routes = RouteSet.new
@@ -38,15 +40,15 @@ module Parklife
       end
 
       size = routes.size
-      puts "Building #{size} route#{'s' unless size == 1}"
+      reporter.puts "Building #{size} route#{'s' unless size == 1}"
 
       routes.each do |route|
         session.visit(route)
         session.save_page(Utils.build_path_for(dir: build_dir, path: route))
-        print '.'
+        reporter.print '.'
       end
 
-      puts
+      reporter.puts
 
       after_build_callbacks.each do |callback|
         callback.call(self)

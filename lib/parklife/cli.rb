@@ -22,6 +22,7 @@ module Parklife
           # Parklife::Application is defined.
           require discover_parklife_rb(Dir.pwd)
 
+          Parklife.application.reporter = $stdout
           Parklife.application
         end
       end
