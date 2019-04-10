@@ -24,6 +24,22 @@ RSpec.describe Parklife::Application do
       end
     end
 
+    context 'with callbacks' do
+      let(:build_dir) { tmpdir }
+      let(:rack_app) { app }
+
+      it 'they are called in the correct order' do
+        callbacks = []
+
+        subject.after_build { callbacks << 2 }
+        subject.before_build { callbacks << 1 }
+
+        subject.build
+
+        expect(callbacks).to eql([1, 2])
+      end
+    end
+
     context 'with no routes' do
       let(:build_dir) { tmpdir }
       let(:rack_app) { app }
