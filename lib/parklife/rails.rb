@@ -1,3 +1,5 @@
+raise Parklife::RailsNotDefinedError if defined?(Rails).nil?
+
 require 'fileutils'
 require 'parklife'
 
