@@ -1,0 +1,21 @@
+require 'parklife'
+require 'sinatra'
+
+get '/' do
+  'root'
+end
+
+get '/hello/:name' do
+  "Hello #{params[:name]}"
+end
+
+Parklife.application.build_dir = File.expand_path('build', __dir__)
+Parklife.application.rack_app = Sinatra::Application
+
+Parklife.application.routes do
+  root
+
+  %w(foo bar baz).each do |name|
+    get "/hello/#{name}"
+  end
+end
