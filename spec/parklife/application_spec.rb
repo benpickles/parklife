@@ -22,6 +22,10 @@ RSpec.describe Parklife::Application do
         subject.build
 
         expect(Dir.children(tmpdir)).to eql(['index.html'])
+
+        index = File.join(tmpdir, 'index.html')
+
+        expect(File.read(index)).to eql('200')
       end
     end
 
