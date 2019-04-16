@@ -68,7 +68,13 @@ module Parklife
       attr_reader :after_build_callbacks, :before_build_callbacks
 
       def session
-        @session ||= Capybara::Session.new(:rack_test, rack_app)
+        @session ||= begin
+          Capybara.register_driver :rack_test do |app|
+            Capybara::RackTest::Driver.new(app, follow_redirects: false)
+          end
+
+          Capybara::Session.new(:rack_test, rack_app)
+        end
       end
   end
 end

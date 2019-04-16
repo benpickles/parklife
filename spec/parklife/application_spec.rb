@@ -4,6 +4,7 @@ require 'tmpdir'
 RSpec.describe Parklife::Application do
   describe '#build' do
     let(:endpoint_200) { Proc.new { |env| [200, { 'Content-Type' => 'text/html' }, ['200']] } }
+    let(:endpoint_302) { Proc.new { |env| [302, { 'Content-Type' => 'text/html', 'Location' => 'http://example.com/' }, ['302']] } }
     let(:endpoint_500) { Proc.new { |env| [500, { 'Content-Type' => 'text/html' }, ['500']] } }
     let(:tmpdir) { Dir.mktmpdir }
 
@@ -26,6 +27,19 @@ RSpec.describe Parklife::Application do
         index = File.join(tmpdir, 'index.html')
 
         expect(File.read(index)).to eql('200')
+      end
+    end
+
+    context 'when an endpoint responds with a redirect' do
+      let(:build_dir) { tmpdir }
+      let(:rack_app) { endpoint_302 }
+
+      it do
+        subject.routes.get('/redirect-me')
+
+        expect {
+          subject.build
+        }.to raise_error(Parklife::HTTPError, '302 response from path "/redirect-me"')
       end
     end
 
