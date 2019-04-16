@@ -3,7 +3,8 @@ require 'tmpdir'
 
 RSpec.describe Parklife::Application do
   describe '#build' do
-    let(:app) { Proc.new { |env| [200, { 'Content-Type' => 'text/html' }, ['']] } }
+    let(:endpoint_200) { Proc.new { |env| [200, { 'Content-Type' => 'text/html' }, ['200']] } }
+    let(:endpoint_500) { Proc.new { |env| [500, { 'Content-Type' => 'text/html' }, ['500']] } }
     let(:tmpdir) { Dir.mktmpdir }
 
     subject { described_class.new(build_dir: build_dir, rack_app: rack_app) }
@@ -14,7 +15,7 @@ RSpec.describe Parklife::Application do
 
     context 'with everything defined' do
       let(:build_dir) { tmpdir }
-      let(:rack_app) { app }
+      let(:rack_app) { endpoint_200 }
 
       it do
         subject.routes.get '/'
@@ -24,9 +25,22 @@ RSpec.describe Parklife::Application do
       end
     end
 
+    context 'when an endpoint does not respond with a 200' do
+      let(:build_dir) { tmpdir }
+      let(:rack_app) { endpoint_500 }
+
+      it do
+        subject.routes.get('/everything-is-a-500')
+
+        expect {
+          subject.build
+        }.to raise_error(Parklife::HTTPError, '500 response from path "/everything-is-a-500"')
+      end
+    end
+
     context 'with callbacks' do
       let(:build_dir) { tmpdir }
-      let(:rack_app) { app }
+      let(:rack_app) { endpoint_200 }
 
       it 'they are called in the correct order' do
         callbacks = []
@@ -42,7 +56,7 @@ RSpec.describe Parklife::Application do
 
     context 'with no routes' do
       let(:build_dir) { tmpdir }
-      let(:rack_app) { app }
+      let(:rack_app) { endpoint_200 }
 
       it 'the build - with callbacks etc - still occurs' do
         subject.build
@@ -53,7 +67,7 @@ RSpec.describe Parklife::Application do
 
     context 'when #build_dir is not set' do
       let(:build_dir) { nil }
-      let(:rack_app) { app }
+      let(:rack_app) { endpoint_200 }
 
       it do
         subject.routes.get '/'

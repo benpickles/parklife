@@ -44,6 +44,7 @@ module Parklife
 
       routes.each do |route|
         session.visit(route)
+        raise HTTPError.new(session) unless session.status_code == 200
         session.save_page(Utils.build_path_for(dir: build_dir, path: route))
         reporter.print '.'
       end
