@@ -4,16 +4,17 @@ module Parklife
   RackAppNotDefinedError = Class.new(Error)
 
   class HTTPError < Error
-    def initialize(session)
-      @session = session
+    def initialize(path:, status:)
+      @path = path
+      @status = status
     end
 
     def message
-      %Q(#{session.status_code} response from path "#{session.current_path}")
+      %Q(#{status} response from path "#{path}")
     end
 
     private
-      attr_reader :session
+      attr_reader :path, :status
   end
 
   class RailsNotDefinedError < Error
