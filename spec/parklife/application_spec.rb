@@ -3,9 +3,9 @@ require 'tmpdir'
 
 RSpec.describe Parklife::Application do
   describe '#build' do
-    let(:endpoint_200) { Proc.new { |env| [200, { 'Content-Type' => 'text/html' }, ['200']] } }
-    let(:endpoint_302) { Proc.new { |env| [302, { 'Content-Type' => 'text/html', 'Location' => 'http://example.com/' }, ['302']] } }
-    let(:endpoint_500) { Proc.new { |env| [500, { 'Content-Type' => 'text/html' }, ['500']] } }
+    let(:endpoint_200) { Proc.new { |env| [200, {}, ['200']] } }
+    let(:endpoint_302) { Proc.new { |env| [302, { 'Location' => 'http://example.com/' }, ['302']] } }
+    let(:endpoint_500) { Proc.new { |env| [500, {}, ['500']] } }
     let(:tmpdir) { Dir.mktmpdir }
 
     subject { described_class.new(build_dir: build_dir, rack_app: rack_app) }
