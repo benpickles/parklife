@@ -7,9 +7,10 @@ require 'parklife/utils'
 
 module Parklife
   class Application
-    attr_accessor :build_dir, :rack_app, :reporter
+    attr_accessor :base, :build_dir, :rack_app, :reporter
 
-    def initialize(build_dir: nil, rack_app: nil, reporter: NullReporter.new)
+    def initialize(base: nil, build_dir: nil, rack_app: nil, reporter: NullReporter.new)
+      @base = base
       @build_dir = build_dir
       @rack_app = rack_app
       @reporter = reporter
@@ -30,6 +31,7 @@ module Parklife
       raise BuildDirNotDefinedError if build_dir.nil?
       raise RackAppNotDefinedError if rack_app.nil?
 
+      Capybara.app_host = base if base
       Capybara.save_path = build_dir
 
       FileUtils.rm_rf(build_dir)

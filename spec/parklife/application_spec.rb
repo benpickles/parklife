@@ -30,6 +30,23 @@ RSpec.describe Parklife::Application do
       end
     end
 
+    context 'when a base is defined' do
+      let(:build_dir) { tmpdir }
+      let(:rack_app) { Proc.new { |env| [200, {}, [env['rack.url_scheme'], ',', env['HTTP_HOST']]] } }
+
+      it do
+        subject.base = 'https://foo.example.com'
+        subject.routes.get '/'
+        subject.build
+
+        expect(Dir.children(tmpdir)).to eql(['index.html'])
+
+        index = File.join(tmpdir, 'index.html')
+
+        expect(File.read(index)).to eql('https,foo.example.com')
+      end
+    end
+
     context 'when an endpoint responds with a redirect' do
       let(:build_dir) { tmpdir }
       let(:rack_app) { endpoint_302 }
