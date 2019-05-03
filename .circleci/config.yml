@@ -1,0 +1,66 @@
+---
+version: 2.1
+jobs:
+  tests:
+    docker:
+      - image: circleci/ruby:2.6
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - bundler-{{ checksum "parklife.gemspec" }}
+            - bundler-
+      - run: bundle install --clean --path vendor/bundle
+      - save_cache:
+          key: bundler-{{ checksum "parklife.gemspec" }}
+          paths:
+            - vendor/bundle
+      - run: bundle exec rspec
+
+  example_rack:
+    docker:
+      - image: circleci/ruby:2.6
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - bundler-{{ checksum "examples/rack/Gemfile.lock" }}
+            - bundler-
+      - run:
+          command: bundle install --clean --path vendor/bundle
+          working_directory: examples/rack
+      - save_cache:
+          key: bundler-{{ checksum "examples/rack/Gemfile.lock" }}
+          paths:
+            - examples/rack/vendor/bundle
+      - run:
+          command: bundle exec parklife build
+          working_directory: examples/rack
+
+  example_sinatra:
+    docker:
+      - image: circleci/ruby:2.6
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - bundler-{{ checksum "examples/sinatra/Gemfile.lock" }}
+            - bundler-
+      - run:
+          command: bundle install --clean --path vendor/bundle
+          working_directory: examples/sinatra
+      - save_cache:
+          key: bundler-{{ checksum "examples/sinatra/Gemfile.lock" }}
+          paths:
+            - examples/sinatra/vendor/bundle
+      - run:
+          command: bundle exec parklife build
+          working_directory: examples/sinatra
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - tests
+      - example_rack
+      - example_sinatra
