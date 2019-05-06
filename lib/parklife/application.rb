@@ -7,11 +7,12 @@ require 'parklife/utils'
 
 module Parklife
   class Application
-    attr_accessor :base, :build_dir, :rack_app, :reporter
+    attr_accessor :base, :build_dir, :nested_index, :rack_app, :reporter
 
-    def initialize(base: nil, build_dir: nil, rack_app: nil, reporter: NullReporter.new)
+    def initialize(base: nil, build_dir: nil, nested_index: false, rack_app: nil, reporter: NullReporter.new)
       @base = base
       @build_dir = build_dir
+      @nested_index = nested_index
       @rack_app = rack_app
       @reporter = reporter
       @after_build_callbacks = []
@@ -51,7 +52,13 @@ module Parklife
           raise HTTPError.new(path: route, status: session.status_code)
         end
 
-        session.save_page(Utils.build_path_for(dir: build_dir, path: route))
+        session.save_page(
+          Utils.build_path_for(
+            dir: build_dir,
+            index: nested_index,
+            path: route,
+          )
+        )
         reporter.print '.'
       end
 
