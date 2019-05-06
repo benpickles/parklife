@@ -20,15 +20,15 @@ module Parklife
           # Reach inside the consuming app's directory to load Parklife and
           # apply its config. It's only at this point that the
           # Parklife::Application is defined.
-          require discover_parklife_rb(Dir.pwd)
+          load discover_Parkfile(Dir.pwd)
 
           Parklife.application.reporter = $stdout
           Parklife.application
         end
       end
 
-      def discover_parklife_rb(dir)
-        File.expand_path('parklife.rb', dir)
+      def discover_Parkfile(dir)
+        File.expand_path('Parkfile', dir)
       end
   end
 end
