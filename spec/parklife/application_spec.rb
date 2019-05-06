@@ -30,6 +30,33 @@ RSpec.describe Parklife::Application do
       end
     end
 
+    context 'when nested_index is false' do
+      let(:build_dir) { tmpdir }
+      let(:rack_app) { endpoint_200 }
+
+      it do
+        subject.nested_index = false
+        subject.routes do
+          get '/'
+          get '/foo'
+          get '/foo.xml'
+          get '/nested/foo'
+        end
+
+        subject.build
+
+        files = Dir.glob('**/*', base: tmpdir).sort
+
+        expect(files).to eql([
+          'foo.html',
+          'foo.xml',
+          'index.html',
+          'nested',
+          'nested/foo.html',
+        ])
+      end
+    end
+
     context 'when a base is defined' do
       let(:build_dir) { tmpdir }
       let(:rack_app) { Proc.new { |env| [200, {}, [env['rack.url_scheme'], ',', env['HTTP_HOST']]] } }
