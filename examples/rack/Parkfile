@@ -11,7 +11,7 @@ app = Proc.new { |env|
   ]
 }
 
-Parklife.application.build_dir = File.expand_path('build', __dir__)
+Parklife.application.build_dir = 'build'
 Parklife.application.rack_app = app
 
 Parklife.application.routes do
