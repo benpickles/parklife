@@ -37,6 +37,26 @@ jobs:
           command: bundle exec parklife build
           working_directory: examples/rack
 
+  example_rails:
+    docker:
+      - image: circleci/ruby:2.6
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - bundler-{{ checksum "examples/rails/Gemfile.lock" }}
+            - bundler-
+      - run:
+          command: bundle install --clean --path vendor/bundle
+          working_directory: examples/rails
+      - save_cache:
+          key: bundler-{{ checksum "examples/rails/Gemfile.lock" }}
+          paths:
+            - examples/rails/vendor/bundle
+      - run:
+          command: ./parklife-build
+          working_directory: examples/rails
+
   example_sinatra:
     docker:
       - image: circleci/ruby:2.6
@@ -63,4 +83,5 @@ workflows:
     jobs:
       - tests
       - example_rack
+      - example_rails
       - example_sinatra
