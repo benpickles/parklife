@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+set -eu
+
+export RAILS_ENV=production
+
+# Create a production SQLite database.
+bundle exec rails db:create db:schema:load
+
+# Populate it with our data import script.
+bundle exec rails runner lib/runners/import_data.rb
+
+# Generate production-optimised assets with Sprockets and friends. This must be
+# done before generating the Parklife build as Rails will blow up if it detects
+# missing assets at runtime.
+bundle exec rails assets:precompile
+
+# Generate the Parklife build.
+bundle exec parklife build
+
+# Copy everything in /public to the build directory -- this includes the newly
+# generated sprockets assets and things like favicon.ico and robots.txt.
+cp -R public/* build
+
+# List everything in the final build -- useful debug output.
+find build -type f | sort

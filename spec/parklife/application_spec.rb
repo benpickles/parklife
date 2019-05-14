@@ -20,9 +20,12 @@ RSpec.describe Parklife::Application do
 
       it do
         subject.routes.get '/'
+        subject.routes.get '/foo'
         subject.build
 
-        expect(Dir.children(tmpdir)).to eql(['index.html'])
+        files = Dir.glob('**/*', base: tmpdir).sort
+
+        expect(files).to eql(['foo', 'foo/index.html', 'index.html'])
 
         index = File.join(tmpdir, 'index.html')
 
