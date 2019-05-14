@@ -40,6 +40,8 @@ jobs:
   example_rails:
     docker:
       - image: circleci/ruby:2.6
+        environment:
+          SECRET_KEY_BASE: secret
     steps:
       - checkout
       - restore_cache:
