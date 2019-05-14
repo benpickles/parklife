@@ -9,7 +9,7 @@ module Parklife
 
     desc 'routes', 'list all defined routes'
     def routes
-      application.routes.to_a.sort.each do |route|
+      application.routes.each do |route|
         puts route
       end
     end
