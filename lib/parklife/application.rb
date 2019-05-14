@@ -1,15 +1,15 @@
 require 'capybara'
 require 'fileutils'
 require 'parklife/errors'
-require 'parklife/null_reporter'
 require 'parklife/route_set'
 require 'parklife/utils'
+require 'stringio'
 
 module Parklife
   class Application
     attr_accessor :base, :build_dir, :nested_index, :rack_app, :reporter
 
-    def initialize(base: nil, build_dir: nil, nested_index: true, rack_app: nil, reporter: NullReporter.new)
+    def initialize(base: nil, build_dir: nil, nested_index: true, rack_app: nil, reporter: StringIO.new)
       @base = base
       @build_dir = build_dir
       @nested_index = nested_index
