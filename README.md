@@ -1,38 +1,98 @@
 # Parklife
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/parklife`. To experiment with that code, run `bin/console` for an interactive prompt.
+[![CircleCI](https://circleci.com/gh/benpickles/parklife.svg?style=svg)](https://circleci.com/gh/benpickles/parklife)
 
-TODO: Delete this and the text above, and describe your gem
+[Parklife](https://github.com/benpickles/parklife) is a Ruby library to render a Rack app (Rails/Sinatra/etc) to a static site so it can be served by [Netlify](https://www.netlify.com), [Now](https://zeit.co/now), [GitHub Pages](https://pages.github.com), S3, or another static server.
 
-## Installation
+## How to use Parklife with Rails
 
-Add this line to your application's Gemfile:
+Parklife is configured with a file called `Parkfile` in the root of your project, here's an example `Parkfile` for an imaginary Rails app:
 
 ```ruby
-gem 'parklife'
+# Load the Rails application, this gives you full access to the application's
+# environment from this file - using models for example.
+require_relative 'config/environment'
+
+# Load Parklife and some Rails-specific settings allowing you to use URL
+# helpers within the `routes` block below.
+require 'parklife/rails'
+
+Parkfile.application.routes do
+  # The homepage.
+  root
+
+  # A couple of custom pages.
+  get about_path
+  get location_path
+
+  # All blog posts.
+  BlogPost.find_each do |blog_post|
+    get blog_post_path(blog_post)
+  end
+
+  # Some extras.
+  get feed_path(format: :atom)
+  get sitemap_path(format: :xml)
+end
 ```
 
-And then execute:
+Listing the routes included in the above Parklife application with `parklife routes` would output the following:
 
-    $ bundle
+```
+$ bundle exec parklife routes
+/
+/about
+/location
+/blog/2019/03/07/developers-developers-developers
+/blog/2019/04/21/modern-life-is-rubbish
+/blog/2019/05/15/introducing-parklife
+/feed.atom
+/sitemap.xml
+```
 
-Or install it yourself as:
+Now you can run `parklife build` which will fetch all the routes and save them to the `build` directory ready to be served as a static site.
 
-    $ gem install parklife
+Parklife doesn't know about assets (images, CSS, etc) so you likely also need to generate those and copy them to the build directory, see the [Rails example's full build script](examples/rails/parklife-build) for how you might do this.
 
-## Usage
+## More examples
 
-TODO: Write usage instructions here
+Take a look at the [Rails](examples/rails/Parkfile), [Rack](examples/rack/Parkfile) and [Sinatra](examples/sinatra/Parkfile) working examples within this repository.
 
-## Development
+## Configuration
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+### Linking to full URLs
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Sometimes you need to point to a link's full URL - maybe for a feed or a social tag URL. You can tell Parklife to make its mock requests with a particular protocol / host by setting its `base` so Rails `*_url` helpers will point to the correct host:
 
-## Contributing
+```ruby
+Parklife.application.base = 'https://foo.example.com'
+```
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/benpickles/parklife. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+### Dealing with trailing slashes <small>(turning off nested `index.html`)</small>
+
+By default Parklife stores files in an `index.html` file nested in directory with the same name as the path - so the route `/my/nested/route` is stored in `/my/nested/route/index.html`. This is to make sure links within the app work without modification making it easier for any static server to host the build.
+
+However, it's possible to turn this off so that `/my/nested/route` is stored in `/my/nested/route.html`. This allows you to serve trailing slash-less URLs by using [Netlify's Pretty URLs feature](https://www.netlify.com/docs/redirects/#trailing-slash) or with some custom nginx config.
+
+```ruby
+Parklife.application.nested_index = false
+```
+
+### Changing the build output directory
+
+The build directory shouldn't exist and is completely recreated before each build.
+
+```ruby
+Parklife.application.build_dir = 'my/build/dir'
+```
+
+### Setting the Rack app
+
+If you're not using the Rails configuration you'll need to define this yourself, see the [examples](examples).
+
+```ruby
+Parklife.application.rack_app
+```
 
 ## License
 
