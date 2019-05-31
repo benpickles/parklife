@@ -4,11 +4,9 @@ set -eu
 
 export RAILS_ENV=production
 
-# Create a production SQLite database.
-bundle exec rails db:create db:schema:load
-
-# Populate it with our data import script.
-bundle exec rails runner lib/runners/import_data.rb
+# Create a production SQLite database and populate it with the app's data (see
+# db/seeds.rb for how).
+bundle exec rails db:setup
 
 # Generate production-optimised assets with Sprockets and friends. This must be
 # done before generating the Parklife build as Rails will blow up if it detects
