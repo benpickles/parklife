@@ -21,7 +21,7 @@ GEM
     mini_mime (1.0.1)
     mini_portile2 (2.4.0)
     mustermann (1.0.3)
-    nokogiri (1.10.4)
+    nokogiri (1.10.8)
       mini_portile2 (~> 2.4.0)
     public_suffix (3.0.3)
     rack (2.0.8)
