@@ -1,6 +1,6 @@
 # Parklife
 
-[![CircleCI](https://circleci.com/gh/benpickles/parklife.svg?style=svg)](https://circleci.com/gh/benpickles/parklife)
+[![GitHub Actions status](https://github.com/benpickles/parklife/workflows/Tests/badge.svg)](https://github.com/benpickles/parklife)
 
 [Parklife](https://github.com/benpickles/parklife) is a Ruby library to render a Rack app (Rails/Sinatra/etc) to a static site so it can be served by [Netlify](https://www.netlify.com), [Now](https://zeit.co/now), [GitHub Pages](https://pages.github.com), S3, or another static server.
 
