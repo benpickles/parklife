@@ -15,17 +15,7 @@ module Parklife
       @nested_index = nested_index
       @rack_app = rack_app
       @reporter = reporter
-      @after_build_callbacks = []
-      @before_build_callbacks = []
       @routes = RouteSet.new
-    end
-
-    def after_build(&block)
-      @after_build_callbacks << block
-    end
-
-    def before_build(&block)
-      @before_build_callbacks << block
     end
 
     def build
@@ -37,10 +27,6 @@ module Parklife
 
       FileUtils.rm_rf(build_dir)
       Dir.mkdir(build_dir)
-
-      before_build_callbacks.each do |callback|
-        callback.call(self)
-      end
 
       size = routes.size
       reporter.puts "Building #{size} route#{'s' unless size == 1}"
@@ -63,10 +49,6 @@ module Parklife
       end
 
       reporter.puts
-
-      after_build_callbacks.each do |callback|
-        callback.call(self)
-      end
     end
 
     def routes(&block)
@@ -78,8 +60,6 @@ module Parklife
     end
 
     private
-      attr_reader :after_build_callbacks, :before_build_callbacks
-
       def session
         @session ||= begin
           Capybara.register_driver :rack_test do |app|

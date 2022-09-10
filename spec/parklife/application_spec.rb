@@ -103,33 +103,6 @@ RSpec.describe Parklife::Application do
       end
     end
 
-    context 'with callbacks' do
-      let(:build_dir) { tmpdir }
-      let(:rack_app) { endpoint_200 }
-
-      it 'they are called in the correct order' do
-        callbacks = []
-
-        subject.after_build { callbacks << 2 }
-        subject.before_build { callbacks << 1 }
-
-        subject.build
-
-        expect(callbacks).to eql([1, 2])
-      end
-    end
-
-    context 'with no routes' do
-      let(:build_dir) { tmpdir }
-      let(:rack_app) { endpoint_200 }
-
-      it 'the build - with callbacks etc - still occurs' do
-        subject.build
-
-        expect(Dir.children(tmpdir)).to be_empty
-      end
-    end
-
     context 'when #build_dir is not set' do
       let(:build_dir) { nil }
       let(:rack_app) { endpoint_200 }
