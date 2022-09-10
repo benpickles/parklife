@@ -1,5 +1,6 @@
 require 'capybara'
 require 'fileutils'
+require 'parklife/config'
 require 'parklife/errors'
 require 'parklife/route_set'
 require 'parklife/utils'
@@ -7,29 +8,25 @@ require 'stringio'
 
 module Parklife
   class Application
-    attr_accessor :base, :build_dir, :nested_index, :rack_app, :reporter
+    attr_reader :config
 
-    def initialize(base: nil, build_dir: nil, nested_index: true, rack_app: nil, reporter: StringIO.new)
-      @base = base
-      @build_dir = build_dir
-      @nested_index = nested_index
-      @rack_app = rack_app
-      @reporter = reporter
+    def initialize
+      @config = Config.new
       @routes = RouteSet.new
     end
 
     def build
-      raise BuildDirNotDefinedError if build_dir.nil?
-      raise RackAppNotDefinedError if rack_app.nil?
+      raise BuildDirNotDefinedError if config.build_dir.nil?
+      raise RackAppNotDefinedError if config.rack_app.nil?
 
-      Capybara.app_host = base if base
-      Capybara.save_path = build_dir
+      Capybara.app_host = config.base if config.base
+      Capybara.save_path = config.build_dir
 
-      FileUtils.rm_rf(build_dir)
-      Dir.mkdir(build_dir)
+      FileUtils.rm_rf(config.build_dir)
+      Dir.mkdir(config.build_dir)
 
       size = routes.size
-      reporter.puts "Building #{size} route#{'s' unless size == 1}"
+      config.reporter.puts "Building #{size} route#{'s' unless size == 1}"
 
       routes.each do |route|
         session.visit(route)
@@ -40,15 +37,19 @@ module Parklife
 
         session.save_page(
           Utils.build_path_for(
-            dir: build_dir,
-            index: nested_index,
+            dir: config.build_dir,
+            index: config.nested_index,
             path: route,
           )
         )
-        reporter.print '.'
+        config.reporter.print '.'
       end
 
-      reporter.puts
+      config.reporter.puts
+    end
+
+    def configure
+      yield config
     end
 
     def routes(&block)
@@ -62,11 +63,11 @@ module Parklife
     private
       def session
         @session ||= begin
-          Capybara.register_driver :rack_test do |app|
+          Capybara.register_driver :parklife do |app|
             Capybara::RackTest::Driver.new(app, follow_redirects: false)
           end
 
-          Capybara::Session.new(:rack_test, rack_app)
+          Capybara::Session.new(:parklife, config.rack_app)
         end
       end
   end

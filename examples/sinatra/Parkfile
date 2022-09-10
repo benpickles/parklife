@@ -9,8 +9,10 @@ get '/hello/:name' do
   "Hello #{params[:name]}"
 end
 
-Parklife.application.build_dir = 'build'
-Parklife.application.rack_app = Sinatra::Application
+Parklife.application.configure do |config|
+  config.build_dir = 'build'
+  config.rack_app = Sinatra::Application
+end
 
 Parklife.application.routes do
   root

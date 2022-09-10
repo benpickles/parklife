@@ -22,7 +22,7 @@ module Parklife
           # Parklife::Application is defined.
           load discover_Parkfile(Dir.pwd)
 
-          Parklife.application.reporter = $stdout
+          Parklife.application.config.reporter = $stdout
           Parklife.application
         end
       end

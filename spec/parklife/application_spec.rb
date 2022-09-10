@@ -8,7 +8,14 @@ RSpec.describe Parklife::Application do
     let(:endpoint_500) { Proc.new { |env| [500, {}, ['500']] } }
     let(:tmpdir) { Dir.mktmpdir }
 
-    subject { described_class.new(build_dir: build_dir, rack_app: rack_app) }
+    subject {
+      described_class.new.tap { |app|
+        app.configure do |config|
+          config.build_dir = build_dir
+          config.rack_app = rack_app
+        end
+      }
+    }
 
     after do
       FileUtils.remove_entry_secure(tmpdir)
@@ -38,7 +45,7 @@ RSpec.describe Parklife::Application do
       let(:rack_app) { endpoint_200 }
 
       it do
-        subject.nested_index = false
+        subject.config.nested_index = false
         subject.routes do
           get '/'
           get '/foo'
@@ -65,7 +72,7 @@ RSpec.describe Parklife::Application do
       let(:rack_app) { Proc.new { |env| [200, {}, [env['rack.url_scheme'], ',', env['HTTP_HOST']]] } }
 
       it do
-        subject.base = 'https://foo.example.com'
+        subject.config.base = 'https://foo.example.com'
         subject.routes.get '/'
         subject.build
 

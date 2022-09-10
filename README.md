@@ -65,7 +65,7 @@ Take a look at the [Rails](examples/rails/Parkfile), [Rack](examples/rack/Parkfi
 Sometimes you need to point to a link's full URL - maybe for a feed or a social tag URL. You can tell Parklife to make its mock requests with a particular protocol / host by setting its `base` so Rails `*_url` helpers will point to the correct host:
 
 ```ruby
-Parklife.application.base = 'https://foo.example.com'
+Parklife.application.config.base = 'https://foo.example.com'
 ```
 
 ### Dealing with trailing slashes <small>(turning off nested `index.html`)</small>
@@ -75,7 +75,7 @@ By default Parklife stores files in an `index.html` file nested in directory wit
 However, it's possible to turn this off so that `/my/nested/route` is stored in `/my/nested/route.html`. This allows you to serve trailing slash-less URLs by using [Netlify's Pretty URLs feature](https://www.netlify.com/docs/redirects/#trailing-slash) or with some custom nginx config.
 
 ```ruby
-Parklife.application.nested_index = false
+Parklife.application.config.nested_index = false
 ```
 
 ### Changing the build output directory
@@ -83,7 +83,7 @@ Parklife.application.nested_index = false
 The build directory shouldn't exist and is completely recreated before each build.
 
 ```ruby
-Parklife.application.build_dir = 'my/build/dir'
+Parklife.application.config.build_dir = 'my/build/dir'
 ```
 
 ### Setting the Rack app
@@ -91,7 +91,7 @@ Parklife.application.build_dir = 'my/build/dir'
 If you're not using the Rails configuration you'll need to define this yourself, see the [examples](examples).
 
 ```ruby
-Parklife.application.rack_app
+Parklife.application.config.rack_app
 ```
 
 ## License
