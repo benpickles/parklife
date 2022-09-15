@@ -1,6 +1,6 @@
 require 'parklife/errors'
 
-raise Parklife::RailsNotDefinedError if defined?(Rails).nil?
+raise Parklife::RailsNotDefinedError unless defined?(Rails)
 
 require 'parklife'
 
@@ -8,5 +8,5 @@ require 'parklife'
 # block when defining Parklife routes.
 Parklife::RouteSet.include(Rails.application.routes.url_helpers)
 
-Parklife.application.build_dir = Rails.root.join('build')
-Parklife.application.rack_app = Rails.application
+Parklife.application.config.build_dir = Rails.root.join('build')
+Parklife.application.config.rack_app = Rails.application

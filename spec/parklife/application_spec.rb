@@ -8,7 +8,14 @@ RSpec.describe Parklife::Application do
     let(:endpoint_500) { Proc.new { |env| [500, {}, ['500']] } }
     let(:tmpdir) { Dir.mktmpdir }
 
-    subject { described_class.new(build_dir: build_dir, rack_app: rack_app) }
+    subject {
+      described_class.new.tap { |app|
+        app.configure do |config|
+          config.build_dir = build_dir
+          config.rack_app = rack_app
+        end
+      }
+    }
 
     after do
       FileUtils.remove_entry_secure(tmpdir)
@@ -38,7 +45,7 @@ RSpec.describe Parklife::Application do
       let(:rack_app) { endpoint_200 }
 
       it do
-        subject.nested_index = false
+        subject.config.nested_index = false
         subject.routes do
           get '/'
           get '/foo'
@@ -65,7 +72,7 @@ RSpec.describe Parklife::Application do
       let(:rack_app) { Proc.new { |env| [200, {}, [env['rack.url_scheme'], ',', env['HTTP_HOST']]] } }
 
       it do
-        subject.base = 'https://foo.example.com'
+        subject.config.base = 'https://foo.example.com'
         subject.routes.get '/'
         subject.build
 
@@ -100,33 +107,6 @@ RSpec.describe Parklife::Application do
         expect {
           subject.build
         }.to raise_error(Parklife::HTTPError, '500 response from path "/everything-is-a-500"')
-      end
-    end
-
-    context 'with callbacks' do
-      let(:build_dir) { tmpdir }
-      let(:rack_app) { endpoint_200 }
-
-      it 'they are called in the correct order' do
-        callbacks = []
-
-        subject.after_build { callbacks << 2 }
-        subject.before_build { callbacks << 1 }
-
-        subject.build
-
-        expect(callbacks).to eql([1, 2])
-      end
-    end
-
-    context 'with no routes' do
-      let(:build_dir) { tmpdir }
-      let(:rack_app) { endpoint_200 }
-
-      it 'the build - with callbacks etc - still occurs' do
-        subject.build
-
-        expect(Dir.children(tmpdir)).to be_empty
       end
     end
 

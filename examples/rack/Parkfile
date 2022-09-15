@@ -11,8 +11,10 @@ app = Proc.new { |env|
   ]
 }
 
-Parklife.application.build_dir = 'build'
-Parklife.application.rack_app = app
+Parklife.application.configure do |config|
+  config.build_dir = 'build'
+  config.rack_app = app
+end
 
 Parklife.application.routes do
   root
