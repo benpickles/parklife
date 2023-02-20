@@ -2,7 +2,7 @@ require 'parklife'
 require 'sinatra'
 
 get '/' do
-  'root'
+  '<a href="/hello/foo">foo</foo>, <a href="/hello/bar">bar</foo>, <a href="/hello/baz">baz</foo>'
 end
 
 get '/hello/:name' do
@@ -15,9 +15,7 @@ Parklife.application.configure do |config|
 end
 
 Parklife.application.routes do
-  root
+  root crawl: true
 
-  %w(foo bar baz).each do |name|
-    get "/hello/#{name}"
-  end
+  get '/hello/other'
 end
