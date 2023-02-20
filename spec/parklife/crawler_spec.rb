@@ -31,9 +31,9 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      files = Dir.glob('**/*', base: tmpdir).sort
+      files = Dir.glob('**/*', base: tmpdir)
 
-      expect(files).to eql(['foo', 'foo/index.html', 'index.html'])
+      expect(files).to match_array(['foo', 'foo/index.html', 'index.html'])
 
       index = File.join(tmpdir, 'index.html')
 
@@ -54,9 +54,9 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      files = Dir.glob('**/*', base: tmpdir).sort
+      files = Dir.glob('**/*', base: tmpdir)
 
-      expect(files).to eql([
+      expect(files).to match_array([
         'foo.html',
         'foo.xml',
         'index.html',
@@ -115,6 +115,52 @@ RSpec.describe Parklife::Crawler do
       subject.start
 
       expect(Dir.children(tmpdir)).to be_empty
+    end
+  end
+
+  context 'with crawl=true' do
+    let(:rack_app) {
+      Proc.new { |env|
+        html = case env['PATH_INFO']
+        when '/'
+          '<a href="/foo">foo</a>, <a href="/bar">bar</a>, <a href="/baz">baz</a>'
+        when '/foo'
+          '<a href="/bar">bar</a>'
+        when '/bar'
+          '<a href="/baz">baz</a>, <a href="/foo">foo</a>'
+        when '/baz'
+          '<a href="/other">other</a>'
+        when '/other'
+          '<a href="https://www.wikipedia.org">Wikipedia</a>'
+        else
+          '200'
+        end
+
+        [200, {}, [html]]
+      }
+    }
+
+    it do
+      route_set.get('/', crawl: true)
+      route_set.get('/another')
+
+      subject.start
+
+      files = Dir.glob('**/*', base: tmpdir)
+
+      expect(files).to match_array([
+        'another',
+        'another/index.html',
+        'bar',
+        'bar/index.html',
+        'baz',
+        'baz/index.html',
+        'foo',
+        'foo/index.html',
+        'index.html',
+        'other',
+        'other/index.html',
+      ])
     end
   end
 end

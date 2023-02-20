@@ -1,11 +1,14 @@
 require 'set'
+require_relative 'route'
 
 module Parklife
   class RouteSet
+    include Enumerable
+
     attr_reader :routes
 
     def initialize
-      @routes = Set.new([])
+      @routes = Set.new
     end
 
     def each
@@ -14,12 +17,12 @@ module Parklife
       end
     end
 
-    def get(path)
-      routes << path
+    def get(path, crawl: false)
+      routes << Route.new(path, crawl: crawl)
     end
 
-    def root
-      get('/')
+    def root(crawl: false)
+      get('/', crawl: crawl)
     end
 
     def size

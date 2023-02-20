@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'capybara'
+  spec.add_dependency 'nokogiri'
   spec.add_dependency 'thor'
 
   spec.add_development_dependency 'bundler'
