@@ -49,7 +49,17 @@ module Parklife
 
         session.visit(route.path)
 
-        if session.status_code != 200
+        case session.status_code
+        when 200
+          # Continue processing the route.
+        when 404
+          case config.on_404
+          when :error
+            raise HTTPError.new(path: route.path, status: 404)
+          when :warn
+            $stderr.puts HTTPError.new(path: route.path, status: 404).message
+          end
+        else
           raise HTTPError.new(path: route.path, status: session.status_code)
         end
 
