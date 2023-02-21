@@ -17,119 +17,22 @@ RSpec.describe Parklife::Application do
       }
     }
 
-    after do
-      FileUtils.remove_entry_secure(tmpdir)
-    end
-
-    context 'with everything defined' do
-      let(:build_dir) { tmpdir }
-      let(:rack_app) { endpoint_200 }
-
-      it do
-        subject.routes.get '/'
-        subject.routes.get '/foo'
-        subject.build
-
-        files = Dir.glob('**/*', base: tmpdir).sort
-
-        expect(files).to eql(['foo', 'foo/index.html', 'index.html'])
-
-        index = File.join(tmpdir, 'index.html')
-
-        expect(File.read(index)).to eql('200')
-      end
-    end
-
-    context 'when nested_index is false' do
-      let(:build_dir) { tmpdir }
-      let(:rack_app) { endpoint_200 }
-
-      it do
-        subject.config.nested_index = false
-        subject.routes do
-          get '/'
-          get '/foo'
-          get '/foo.xml'
-          get '/nested/foo'
-        end
-
-        subject.build
-
-        files = Dir.glob('**/*', base: tmpdir).sort
-
-        expect(files).to eql([
-          'foo.html',
-          'foo.xml',
-          'index.html',
-          'nested',
-          'nested/foo.html',
-        ])
-      end
-    end
-
-    context 'when a base is defined' do
-      let(:build_dir) { tmpdir }
-      let(:rack_app) { Proc.new { |env| [200, {}, [env['rack.url_scheme'], ',', env['HTTP_HOST']]] } }
-
-      it do
-        subject.config.base = 'https://foo.example.com'
-        subject.routes.get '/'
-        subject.build
-
-        expect(Dir.children(tmpdir)).to eql(['index.html'])
-
-        index = File.join(tmpdir, 'index.html')
-
-        expect(File.read(index)).to eql('https,foo.example.com')
-      end
-    end
-
-    context 'when an endpoint responds with a redirect' do
-      let(:build_dir) { tmpdir }
-      let(:rack_app) { endpoint_302 }
-
-      it do
-        subject.routes.get('/redirect-me')
-
-        expect {
-          subject.build
-        }.to raise_error(Parklife::HTTPError, '302 response from path "/redirect-me"')
-      end
-    end
-
-    context 'when an endpoint does not respond with a 200' do
-      let(:build_dir) { tmpdir }
-      let(:rack_app) { endpoint_500 }
-
-      it do
-        subject.routes.get('/everything-is-a-500')
-
-        expect {
-          subject.build
-        }.to raise_error(Parklife::HTTPError, '500 response from path "/everything-is-a-500"')
-      end
-    end
-
-    context 'when #build_dir is not set' do
+    context 'when config.build_dir is not set' do
       let(:build_dir) { nil }
       let(:rack_app) { endpoint_200 }
 
       it do
-        subject.routes.get '/'
-
         expect {
           subject.build
         }.to raise_error(Parklife::BuildDirNotDefinedError)
       end
     end
 
-    context 'when #rack_app is not set' do
+    context 'when config.rack_app is not set' do
       let(:build_dir) { tmpdir }
       let(:rack_app) { nil }
 
       it do
-        subject.routes.get '/'
-
         expect {
           subject.build
         }.to raise_error(Parklife::RackAppNotDefinedError)

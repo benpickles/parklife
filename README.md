@@ -18,21 +18,16 @@ require_relative 'config/environment'
 require 'parklife/rails'
 
 Parkfile.application.routes do
-  # The homepage.
-  root
+  # Start from the homepage and crawl all links.
+  root crawl: true
 
-  # A couple of custom pages.
-  get about_path
-  get location_path
-
-  # All blog posts.
-  BlogPost.find_each do |blog_post|
-    get blog_post_path(blog_post)
-  end
-
-  # Some extras.
+  # Some extra paths that aren't discovered while crawling.
   get feed_path(format: :atom)
   get sitemap_path(format: :xml)
+
+  # A couple more hidden pages.
+  get easter_egg_path, crawl: true
+  get '404.html'
 end
 ```
 
@@ -40,14 +35,11 @@ Listing the routes included in the above Parklife application with `parklife rou
 
 ```
 $ bundle exec parklife routes
-/
-/about
-/location
-/blog/2019/03/07/developers-developers-developers
-/blog/2019/04/21/modern-life-is-rubbish
-/blog/2019/05/15/introducing-parklife
+/	crawl=true
 /feed.atom
 /sitemap.xml
+/easter_egg	crawl=true
+/404.html
 ```
 
 Now you can run `parklife build` which will fetch all the routes and save them to the `build` directory ready to be served as a static site.

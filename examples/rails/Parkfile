@@ -2,9 +2,5 @@ require_relative 'config/environment'
 require 'parklife/rails'
 
 Parklife.application.routes do
-  root
-
-  Post.find_each do |post|
-    get post_path(post)
-  end
+  root crawl: true
 end
