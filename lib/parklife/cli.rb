@@ -10,7 +10,9 @@ module Parklife
     desc 'routes', 'list all defined routes'
     def routes
       application.routes.each do |route|
-        puts route
+        print route.path
+        print "\tcrawl=true" if route.crawl
+        puts
       end
     end
 
