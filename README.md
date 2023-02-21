@@ -72,10 +72,18 @@ Parklife.application.config.nested_index = false
 
 ### Changing the build output directory
 
-The build directory shouldn't exist and is completely recreated before each build.
+The build directory shouldn't exist and is destroyed and recreated before each build.
 
 ```ruby
 Parklife.application.config.build_dir = 'my/build/dir'
+```
+
+### Handling a 404
+
+By default if Parklife encounters a 404 response when fetching a route it will raise an exception (the `:error` setting). Other values are `:warn` which will output a message to `stderr` and `:skip` which will skip the response but continue processing other routes.
+
+```ruby
+Parklife.application.config.on_404 = :warn
 ```
 
 ### Setting the Rack app

@@ -163,4 +163,56 @@ RSpec.describe Parklife::Crawler do
       ])
     end
   end
+
+  context 'when encountering a 404 response' do
+    let(:rack_app) { Proc.new { |env| [404, {}, ['404']] } }
+
+    before do
+      config.on_404 = on_404
+      route_set.get '/404'
+    end
+
+    context 'with on_404=:error setting' do
+      let(:on_404) { :error }
+
+      it do
+        expect {
+          subject.start
+        }.to raise_error(Parklife::HTTPError, '404 response from path "/404"')
+      end
+    end
+
+    context 'with on_404=:warn setting' do
+      let(:on_404) { :warn }
+
+      around do |example|
+        old_stderr = $stderr
+        $stderr = StringIO.new
+        example.run
+        $stderr = old_stderr
+      end
+
+      it do
+        subject.start
+
+        expect($stderr.string.chomp).to eql('404 response from path "/404"')
+
+        files = Dir.glob('**/*', base: tmpdir)
+
+        expect(files).to match_array(['404', '404/index.html'])
+      end
+    end
+
+    context 'with on_404=:skip setting' do
+      let(:on_404) { :skip }
+
+      it do
+        subject.start
+
+        files = Dir.glob('**/*', base: tmpdir)
+
+        expect(files).to match_array(['404', '404/index.html'])
+      end
+    end
+  end
 end
