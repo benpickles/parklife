@@ -1,7 +1,7 @@
 PATH
   remote: ../..
   specs:
-    parklife (0.1.0)
+    parklife (0.2.0)
       capybara
       nokogiri
       thor
@@ -44,4 +44,4 @@ DEPENDENCIES
   rack
 
 BUNDLED WITH
-   1.17.2
+   2.4.7
