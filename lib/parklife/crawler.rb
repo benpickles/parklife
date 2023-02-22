@@ -63,11 +63,7 @@ module Parklife
         end
 
         session.save_page(
-          Utils.build_path_for(
-            dir: config.build_dir,
-            path: route.path,
-            index: config.nested_index,
-          )
+          Utils.build_path_for(route.path, index: config.nested_index)
         )
 
         @visited << route
