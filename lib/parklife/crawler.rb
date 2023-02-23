@@ -1,5 +1,4 @@
 require 'capybara'
-require 'nokogiri'
 require 'parklife/route'
 require 'parklife/utils'
 require 'set'
@@ -64,7 +63,7 @@ module Parklife
         end
 
         session.save_page(
-          Utils::build_path_for(
+          Utils.build_path_for(
             dir: config.build_dir,
             path: route.path,
             index: config.nested_index,
@@ -74,26 +73,15 @@ module Parklife
         @visited << route
 
         if route.crawl
-          scan_for_links(session.html) do |route|
+          Utils.scan_for_links(session.html) do |path|
+            route = Route.new(path, crawl: true)
+
             # Don't revisit the route if it has already been visited with
-            # crawl=true but do revisit if it wasn't crawled (the passed route
-            # will always have crawl=true).
+            # crawl=true but do revisit if it wasn't crawled.
             next if @visited.include?(route)
 
             @routes << route
           end
-        end
-      end
-
-      def scan_for_links(html)
-        doc = Nokogiri::HTML.parse(html)
-        doc.css('a').each do |a|
-          uri = URI.parse(a[:href])
-
-          # Don't visit a page that belongs to a different domain.
-          next if uri.host
-
-          yield Route.new(uri.path, crawl: true)
         end
       end
 

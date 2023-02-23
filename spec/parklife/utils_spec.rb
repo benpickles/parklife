@@ -60,4 +60,29 @@ RSpec.describe Parklife::Utils do
       end
     end
   end
+
+  describe '#scan_for_links' do
+    let(:html) {
+      <<~HTML
+        ✅ <a href="/foo">foo</a>
+        ❌ <a href="https://www.example.com">external</a>
+        ❌ <a href="#fragment">fragment</a>
+        ✅ <a href="/bar">bar</a>
+        ❌ <a href="mailto:bob@example.com">mailto</a>
+        ❌ <a href="">empty</a>
+        ✅ <a href="/baz">baz</a>
+        ❌ <a href="ftp://example.com/foo/bar">ftp</a>
+      HTML
+    }
+
+    it do
+      expect { |block|
+        described_class.scan_for_links(html, &block)
+      }.to yield_successive_args(
+        '/foo',
+        '/bar',
+        '/baz'
+      )
+    end
+  end
 end
