@@ -24,8 +24,8 @@ module Parklife
       @visited = Set.new
 
       while route = @routes.shift
-        process_route(route)
-        config.reporter.print '.'
+        processed = process_route(route)
+        config.reporter.print('.') if processed
       end
 
       config.reporter.puts
@@ -44,7 +44,7 @@ module Parklife
           @visited.include?(route) || @visited.include?(crawled_route)
         end
 
-        return if already_processed
+        return false if already_processed
 
         session.visit(route.path)
 
@@ -79,6 +79,8 @@ module Parklife
             @routes << route
           end
         end
+
+        true
       end
 
       def session
