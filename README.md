@@ -42,7 +42,23 @@ $ bundle exec parklife routes
 /404.html
 ```
 
-Now you can run `parklife build` which will fetch all the routes and save them to the `build` directory ready to be served as a static site.
+Now you can run `parklife build` which will fetch all the routes and save them to the `build` directory ready to be served as a static site. Inspecting the build directory might look like this:
+
+```
+$ find build -type f
+build/404.html
+build/about/index.html
+build/blog/index.html
+build/blog/2019/03/07/developers-developers-developers/index.html
+build/blog/2019/04/21/modern-life-is-rubbish/index.html
+build/blog/2019/05/15/introducing-parklife/index.html
+build/easter_egg/index.html
+build/easter_egg/surprise/index.html
+build/index.html
+build/location/index.html
+build/feed.atom
+build/sitemap.xml
+```
 
 Parklife doesn't know about assets (images, CSS, etc) so you likely also need to generate those and copy them to the build directory, see the [Rails example's full build script](examples/rails/parklife-build) for how you might do this.
 
