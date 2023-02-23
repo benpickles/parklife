@@ -3,6 +3,7 @@
 set -eu
 
 export RAILS_ENV=production
+export SECRET_KEY_BASE=secret
 
 # Create a production SQLite database and populate it with the app's data (see
 # db/seeds.rb for how).
