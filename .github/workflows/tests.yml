@@ -15,6 +15,8 @@ jobs:
         working-directory: examples/rack
     - run: bundle exec parklife build
       working-directory: examples/rack
+    - run: test -f build/index.html
+      working-directory: examples/rack
 
   example_rails:
     runs-on: ubuntu-latest
@@ -28,8 +30,8 @@ jobs:
         working-directory: examples/rails
     - run: ./parklife-build
       working-directory: examples/rails
-      env:
-        SECRET_KEY_BASE: secret
+    - run: test -f build/index.html
+      working-directory: examples/rails
 
   example_sinatra:
     runs-on: ubuntu-latest
@@ -42,6 +44,8 @@ jobs:
         ruby-version: '2.7'
         working-directory: examples/sinatra
     - run: bundle exec parklife build
+      working-directory: examples/sinatra
+    - run: test -f build/index.html
       working-directory: examples/sinatra
 
   rspec:

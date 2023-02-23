@@ -24,3 +24,5 @@
 
 # Ignore Parklife build.
 /build
+
+Gemfile.lock
