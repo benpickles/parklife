@@ -4,18 +4,19 @@ module Parklife
   module Utils
     extend self
 
-    def build_path_for(dir:, path:, index: true)
+    def build_path_for(path, index: true)
       path = path.gsub(/^\/|\/$/, '')
 
       if File.extname(path).empty?
-        if index
-          File.join(dir, path, 'index.html')
+        if path.empty?
+          'index.html'
+        elsif index
+          File.join(path, 'index.html')
         else
-          name = path.empty? ? 'index.html' : "#{path}.html"
-          File.join(dir, name)
+          "#{path}.html"
         end
       else
-        File.join(dir, path)
+        path
       end
     end
 

@@ -10,7 +10,6 @@ get '/hello/:name' do
 end
 
 Parklife.application.configure do |config|
-  config.build_dir = 'build'
   config.rack_app = Sinatra::Application
 end
 

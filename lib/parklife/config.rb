@@ -6,6 +6,7 @@ module Parklife
       :reporter
 
     def initialize
+      self.build_dir = 'build'
       self.nested_index = true
       self.on_404 = :error
       self.reporter = StringIO.new
