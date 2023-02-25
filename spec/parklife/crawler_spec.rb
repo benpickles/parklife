@@ -200,7 +200,7 @@ RSpec.describe Parklife::Crawler do
       it do
         subject.start
 
-        expect(build_files).to match_array(['404/index.html'])
+        expect(build_files).to be_empty
       end
     end
   end
