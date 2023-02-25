@@ -22,6 +22,12 @@ RSpec.describe Parklife::Crawler do
     FileUtils.remove_entry_secure(tmpdir)
   end
 
+  def build_files
+    @build_files ||= Dir.glob('**/*', base: tmpdir).select { |path|
+      File.file?(File.join(tmpdir, path))
+    }
+  end
+
   context 'with standard config' do
     let(:rack_app) { endpoint_200 }
 
@@ -31,9 +37,7 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      files = Dir.glob('**/*', base: tmpdir)
-
-      expect(files).to match_array(['foo', 'foo/index.html', 'index.html'])
+      expect(build_files).to match_array(['foo/index.html', 'index.html'])
 
       index = File.join(tmpdir, 'index.html')
 
@@ -54,13 +58,10 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      files = Dir.glob('**/*', base: tmpdir)
-
-      expect(files).to match_array([
+      expect(build_files).to match_array([
         'foo.html',
         'foo.xml',
         'index.html',
-        'nested',
         'nested/foo.html',
       ])
     end
@@ -146,19 +147,12 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      files = Dir.glob('**/*', base: tmpdir)
-
-      expect(files).to match_array([
-        'another',
+      expect(build_files).to match_array([
         'another/index.html',
-        'bar',
         'bar/index.html',
-        'baz',
         'baz/index.html',
-        'foo',
         'foo/index.html',
         'index.html',
-        'other',
         'other/index.html',
       ])
     end
@@ -197,9 +191,7 @@ RSpec.describe Parklife::Crawler do
 
         expect($stderr.string.chomp).to eql('404 response from path "/404"')
 
-        files = Dir.glob('**/*', base: tmpdir)
-
-        expect(files).to match_array(['404', '404/index.html'])
+        expect(build_files).to match_array(['404/index.html'])
       end
     end
 
@@ -209,9 +201,7 @@ RSpec.describe Parklife::Crawler do
       it do
         subject.start
 
-        files = Dir.glob('**/*', base: tmpdir)
-
-        expect(files).to match_array(['404', '404/index.html'])
+        expect(build_files).to match_array(['404/index.html'])
       end
     end
   end
