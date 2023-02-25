@@ -6,12 +6,11 @@ require 'parklife/route_set'
 
 module Parklife
   class Application
-    attr_reader :config, :crawler
+    attr_reader :config
 
     def initialize
       @config = Config.new
       @route_set = RouteSet.new
-      @crawler = Crawler.new(config, @route_set)
     end
 
     def build
@@ -22,6 +21,10 @@ module Parklife
       Dir.mkdir(config.build_dir)
 
       crawler.start
+    end
+
+    def crawler
+      @crawler ||= Crawler.new(config, @route_set)
     end
 
     def configure

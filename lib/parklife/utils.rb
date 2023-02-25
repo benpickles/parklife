@@ -1,3 +1,4 @@
+require 'fileutils'
 require 'nokogiri'
 
 module Parklife
@@ -18,6 +19,15 @@ module Parklife
       else
         path
       end
+    end
+
+    def save_page(path, content, config)
+      build_path = File.join(
+        config.build_dir,
+        build_path_for(path, index: config.nested_index)
+      )
+      FileUtils.mkdir_p(File.dirname(build_path))
+      File.write(build_path, content)
     end
 
     def scan_for_links(html)

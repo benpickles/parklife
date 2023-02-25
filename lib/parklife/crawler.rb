@@ -1,25 +1,19 @@
-require 'capybara'
+require 'parklife/browser'
 require 'parklife/route'
 require 'parklife/utils'
 require 'set'
 
 module Parklife
   class Crawler
-    attr_reader :config, :route_set
+    attr_reader :browser, :config, :route_set
 
     def initialize(config, route_set)
       @config = config
       @route_set = route_set
-
-      Capybara.register_driver :parklife do |app|
-        Capybara::RackTest::Driver.new(app, follow_redirects: false)
-      end
+      @browser = Browser.new(config.app, config.base)
     end
 
     def start
-      Capybara.app_host = config.base if config.base
-      Capybara.save_path = config.build_dir
-
       @routes = route_set.to_a
       @visited = Set.new
 
@@ -46,9 +40,9 @@ module Parklife
 
         return false if already_processed
 
-        session.visit(route.path)
+        response = browser.get(route.path)
 
-        case session.status_code
+        case response.status
         when 200
           # Continue processing the route.
         when 404
@@ -61,17 +55,15 @@ module Parklife
             raise HTTPError.new(path: route.path, status: 404)
           end
         else
-          raise HTTPError.new(path: route.path, status: session.status_code)
+          raise HTTPError.new(path: route.path, status: response.status)
         end
 
-        session.save_page(
-          Utils.build_path_for(route.path, index: config.nested_index)
-        )
+        Utils.save_page(route.path, response.body, config)
 
         @visited << route
 
         if route.crawl
-          Utils.scan_for_links(session.html) do |path|
+          Utils.scan_for_links(response.body) do |path|
             route = Route.new(path, crawl: true)
 
             # Don't revisit the route if it has already been visited with
@@ -83,10 +75,6 @@ module Parklife
         end
 
         true
-      end
-
-      def session
-        @session ||= Capybara::Session.new(:parklife, config.app)
       end
   end
 end
