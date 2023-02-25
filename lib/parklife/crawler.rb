@@ -86,7 +86,7 @@ module Parklife
       end
 
       def session
-        @session ||= Capybara::Session.new(:parklife, config.rack_app)
+        @session ||= Capybara::Session.new(:parklife, config.app)
       end
   end
 end

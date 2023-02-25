@@ -2,8 +2,7 @@ require 'stringio'
 
 module Parklife
   class Config
-    attr_accessor :base, :build_dir, :nested_index, :on_404, :rack_app,
-      :reporter
+    attr_accessor :app, :base, :build_dir, :nested_index, :on_404, :reporter
 
     def initialize
       self.build_dir = 'build'

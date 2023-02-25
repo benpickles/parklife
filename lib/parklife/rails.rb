@@ -8,4 +8,4 @@ require 'parklife'
 # block when defining Parklife routes.
 Parklife::RouteSet.include(Rails.application.routes.url_helpers)
 
-Parklife.application.config.rack_app = Rails.application
+Parklife.application.config.app = Rails.application

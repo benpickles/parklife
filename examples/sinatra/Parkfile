@@ -10,7 +10,7 @@ get '/hello/:name' do
 end
 
 Parklife.application.configure do |config|
-  config.rack_app = Sinatra::Application
+  config.app = Sinatra::Application
 end
 
 Parklife.application.routes do

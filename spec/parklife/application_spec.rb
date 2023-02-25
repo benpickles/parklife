@@ -9,17 +9,17 @@ RSpec.describe Parklife::Application do
     let(:tmpdir) { Dir.mktmpdir }
 
     subject {
-      described_class.new.tap { |app|
-        app.configure do |config|
+      described_class.new.tap { |application|
+        application.configure do |config|
+          config.app = app
           config.build_dir = build_dir
-          config.rack_app = rack_app
         end
       }
     }
 
     context 'when config.build_dir is not set' do
+      let(:app) { endpoint_200 }
       let(:build_dir) { nil }
-      let(:rack_app) { endpoint_200 }
 
       it do
         expect {
@@ -28,9 +28,9 @@ RSpec.describe Parklife::Application do
       end
     end
 
-    context 'when config.rack_app is not set' do
+    context 'when config.app is not set' do
+      let(:app) { nil }
       let(:build_dir) { tmpdir }
-      let(:rack_app) { nil }
 
       it do
         expect {

@@ -16,7 +16,7 @@ module Parklife
 
     def build
       raise BuildDirNotDefinedError if config.build_dir.nil?
-      raise RackAppNotDefinedError if config.rack_app.nil?
+      raise RackAppNotDefinedError if config.app.nil?
 
       FileUtils.rm_rf(config.build_dir)
       Dir.mkdir(config.build_dir)

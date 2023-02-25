@@ -110,7 +110,7 @@ Parklife.application.config.on_404 = :warn
 If you're not using the Rails configuration you'll need to define this yourself, see the [examples](examples).
 
 ```ruby
-Parklife.application.config.rack_app
+Parklife.application.config.app
 ```
 
 ## License

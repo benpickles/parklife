@@ -6,8 +6,8 @@ require 'tmpdir'
 RSpec.describe Parklife::Crawler do
   let(:config) {
     Parklife::Config.new.tap { |config|
+      config.app = app
       config.build_dir = tmpdir
-      config.rack_app = rack_app
     }
   }
   let(:endpoint_200) { Proc.new { |env| [200, {}, ['200']] } }
@@ -29,7 +29,7 @@ RSpec.describe Parklife::Crawler do
   end
 
   context 'with standard config' do
-    let(:rack_app) { endpoint_200 }
+    let(:app) { endpoint_200 }
 
     it do
       route_set.get '/'
@@ -46,7 +46,7 @@ RSpec.describe Parklife::Crawler do
   end
 
   context 'when config.nested_index=false' do
-    let(:rack_app) { endpoint_200 }
+    let(:app) { endpoint_200 }
 
     it do
       config.nested_index = false
@@ -68,7 +68,7 @@ RSpec.describe Parklife::Crawler do
   end
 
   context 'when config.base is defined' do
-    let(:rack_app) { Proc.new { |env| [200, {}, [env['rack.url_scheme'], ',', env['HTTP_HOST']]] } }
+    let(:app) { Proc.new { |env| [200, {}, [env['rack.url_scheme'], ',', env['HTTP_HOST']]] } }
 
     it do
       config.base = 'https://foo.example.com'
@@ -86,7 +86,7 @@ RSpec.describe Parklife::Crawler do
   end
 
   context 'when an endpoint responds with a redirect' do
-    let(:rack_app) { endpoint_302 }
+    let(:app) { endpoint_302 }
 
     it do
       route_set.get('/redirect-me')
@@ -98,7 +98,7 @@ RSpec.describe Parklife::Crawler do
   end
 
   context 'when an endpoint does not respond with a 200' do
-    let(:rack_app) { endpoint_500 }
+    let(:app) { endpoint_500 }
 
     it do
       route_set.get('/everything-is-a-500')
@@ -110,7 +110,7 @@ RSpec.describe Parklife::Crawler do
   end
 
   context 'with no routes' do
-    let(:rack_app) { endpoint_200 }
+    let(:app) { endpoint_200 }
 
     it 'the build still occurs' do
       subject.start
@@ -120,7 +120,7 @@ RSpec.describe Parklife::Crawler do
   end
 
   context 'with crawl=true' do
-    let(:rack_app) {
+    let(:app) {
       Proc.new { |env|
         html = case env['PATH_INFO']
         when '/'
@@ -159,7 +159,7 @@ RSpec.describe Parklife::Crawler do
   end
 
   context 'when encountering a 404 response' do
-    let(:rack_app) { Proc.new { |env| [404, {}, ['404']] } }
+    let(:app) { Proc.new { |env| [404, {}, ['404']] } }
 
     before do
       config.on_404 = on_404
