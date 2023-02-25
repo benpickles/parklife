@@ -180,8 +180,7 @@ RSpec.describe Parklife::Crawler do
       let(:on_404) { :warn }
 
       around do |example|
-        old_stderr = $stderr
-        $stderr = StringIO.new
+        old_stderr, $stderr = $stderr, StringIO.new
         example.run
         $stderr = old_stderr
       end
