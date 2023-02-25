@@ -53,10 +53,12 @@ module Parklife
           # Continue processing the route.
         when 404
           case config.on_404
-          when :error
-            raise HTTPError.new(path: route.path, status: 404)
           when :warn
             $stderr.puts HTTPError.new(path: route.path, status: 404).message
+          when :skip
+            return false
+          else
+            raise HTTPError.new(path: route.path, status: 404)
           end
         else
           raise HTTPError.new(path: route.path, status: session.status_code)
