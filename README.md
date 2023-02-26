@@ -4,6 +4,14 @@
 
 [Parklife](https://github.com/benpickles/parklife) is a Ruby library to render a Rack app (Rails/Sinatra/etc) to a static site so it can be served by [Netlify](https://www.netlify.com), [Now](https://zeit.co/now), [GitHub Pages](https://pages.github.com), S3, or another static server.
 
+## Installation
+
+Add Parklife to your application's Gemfile and run bundle install.
+
+```ruby
+gem 'parklife'
+```
+
 ## How to use Parklife with Rails
 
 Parklife is configured with a file called `Parkfile` in the root of your project, here's an example `Parkfile` for an imaginary Rails app:
@@ -27,6 +35,8 @@ Parkfile.application.routes do
 
   # A couple more hidden pages.
   get easter_egg_path, crawl: true
+
+  # Services typically allow a custom 404 page.
   get '404.html'
 end
 ```
@@ -76,11 +86,17 @@ Sometimes you need to point to a link's full URL - maybe for a feed or a social 
 Parklife.application.config.base = 'https://foo.example.com'
 ```
 
+The base URL can also be passed at build-time which will override the Parkfile setting:
+
+```
+$ bundle exec parklife build --base https://benpickles.github.io/parklife
+```
+
 ### Dealing with trailing slashes <small>(turning off nested `index.html`)</small>
 
 By default Parklife stores files in an `index.html` file nested in directory with the same name as the path - so the route `/my/nested/route` is stored in `/my/nested/route/index.html`. This is to make sure links within the app work without modification making it easier for any static server to host the build.
 
-However, it's possible to turn this off so that `/my/nested/route` is stored in `/my/nested/route.html`. This allows you to serve trailing slash-less URLs by using [Netlify's Pretty URLs feature](https://www.netlify.com/docs/redirects/#trailing-slash) or with some custom nginx config.
+However, it's possible to turn this off so that `/my/nested/route` is stored in `/my/nested/route.html`. This allows you to serve trailing slash-less URLs with GitHub Pages or with Netlify by using their [Pretty URLs feature](https://www.netlify.com/docs/redirects/#trailing-slash) or with some custom nginx config.
 
 ```ruby
 Parklife.application.config.nested_index = false
