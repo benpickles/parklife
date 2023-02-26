@@ -10,6 +10,7 @@ module Parklife
       @env = {
         'HTTP_HOST' => base.host,
         'HTTPS' => base.scheme == 'https' ? 'on' : 'off',
+        script_name: base.path.chomp('/'),
       }
       @session = Rack::Test::Session.new(app)
     end

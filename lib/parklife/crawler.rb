@@ -64,7 +64,13 @@ module Parklife
 
         if route.crawl
           Utils.scan_for_links(response.body) do |path|
-            route = Route.new(path, crawl: true)
+            # When an app is mounted at a path it responds to URLs that must
+            # exclude the mount path but it generates links that include it (if
+            # it is correctly configured). This prefix must therefore be
+            # stripped from links discovered via crawling.
+            baseless_path = path.delete_prefix(config.base.path)
+
+            route = Route.new(baseless_path, crawl: true)
 
             # Don't revisit the route if it has already been visited with
             # crawl=true but do revisit if it wasn't crawled.

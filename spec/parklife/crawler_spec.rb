@@ -158,6 +158,52 @@ RSpec.describe Parklife::Crawler do
     end
   end
 
+  context 'when crawling an app mounted at a subdirectory' do
+    let(:app) {
+      Proc.new { |env|
+        request = Rack::Request.new(env)
+        link = -> (path) {
+          full_path = File.join(request.script_name, path)
+          %(<a href="#{full_path}">#{path}</a>)
+        }
+
+        html = case env['PATH_INFO']
+        when '/'
+          [
+            link.('/foo'),
+            link.('/bar'),
+            link.('/baz'),
+          ].join(' ')
+        when '/foo'
+          link.('/bar')
+        else
+          '200'
+        end
+
+        [200, {}, [html]]
+      }
+    }
+
+    it 'saves responses to the correct (non subdirectory) path but links include the subdirectory' do
+      config.base = '/subdir'
+
+      route_set.get('/', crawl: true)
+
+      subject.start
+
+      expect(build_files).to match_array([
+        'index.html',
+        'foo/index.html',
+        'bar/index.html',
+        'baz/index.html',
+      ])
+
+      foo = File.join(tmpdir, 'foo/index.html')
+
+      expect(File.read(foo)).to eql('<a href="/subdir/bar">/bar</a>')
+    end
+  end
+
   context 'when encountering a 404 response' do
     let(:app) { Proc.new { |env| [404, {}, ['404']] } }
 

@@ -11,6 +11,7 @@ RSpec.describe Parklife::Browser do
       it do
         expect(browser.env['HTTP_HOST']).to eql('foo.example.com')
         expect(browser.env['HTTPS']).to eql('off')
+        expect(browser.env[:script_name]).to eql('')
       end
     end
 
@@ -20,6 +21,7 @@ RSpec.describe Parklife::Browser do
       it do
         expect(browser.env['HTTP_HOST']).to eql('bar.example.com')
         expect(browser.env['HTTPS']).to eql('on')
+        expect(browser.env[:script_name]).to eql('/baz')
       end
     end
   end
@@ -27,27 +29,47 @@ RSpec.describe Parklife::Browser do
   describe '#get' do
     let(:app) {
       Proc.new { |env|
-        request = Rack::Request.new(env)
         status = case env['PATH_INFO']
         when '/404'
           404
         else
           200
         end
-        [status, {}, [request.url]]
+
+        request = Rack::Request.new(env)
+        body = [
+          env['rack.url_scheme'],
+          env['HTTP_HOST'],
+          env['PATH_INFO'],
+          request.url
+        ].join(',')
+
+        [status, {}, [body]]
       }
     }
-    let(:base) { URI.parse('https://foo.example.com') }
     let(:browser) { described_class.new(app, base) }
 
-    it 'sends the correct host/scheme' do
-      response = browser.get('/foo')
-      expect(response.body).to eql('https://foo.example.com/foo')
-      expect(response.status).to eql(200)
+    context 'when the base has no path' do
+      let(:base) { URI.parse('http://example.com') }
 
-      response = browser.get('/404')
-      expect(response.body).to eql('https://foo.example.com/404')
-      expect(response.status).to eql(404)
+      it do
+        response = browser.get('/foo')
+        expect(response.body).to eql('http,example.com,/foo,http://example.com/foo')
+        expect(response.status).to eql(200)
+
+        response = browser.get('/404')
+        expect(response.body).to eql('http,example.com,/404,http://example.com/404')
+        expect(response.status).to eql(404)
+      end
+    end
+
+    context 'when the base has a path' do
+      let(:base) { URI.parse('https://foo.example.com/bar') }
+
+      it 'strips it from the passed path' do
+        response = browser.get('/baz')
+        expect(response.body).to eql('https,foo.example.com,/baz,https://foo.example.com/bar/baz')
+      end
     end
   end
 end
