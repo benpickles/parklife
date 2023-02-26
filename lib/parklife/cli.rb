@@ -3,7 +3,11 @@ require 'thor'
 module Parklife
   class CLI < Thor
     desc 'build', 'create a production build'
+    option :base, desc: 'set config.base at build-time - overrides the Parkfile setting'
     def build
+      # Parkfile config overrides.
+      application.config.base = options[:base] if options[:base]
+
       application.build
     end
 

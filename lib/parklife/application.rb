@@ -6,22 +6,25 @@ require 'parklife/route_set'
 
 module Parklife
   class Application
-    attr_reader :config, :crawler
+    attr_reader :config
 
     def initialize
       @config = Config.new
       @route_set = RouteSet.new
-      @crawler = Crawler.new(config, @route_set)
     end
 
     def build
       raise BuildDirNotDefinedError if config.build_dir.nil?
-      raise RackAppNotDefinedError if config.rack_app.nil?
+      raise RackAppNotDefinedError if config.app.nil?
 
       FileUtils.rm_rf(config.build_dir)
       Dir.mkdir(config.build_dir)
 
       crawler.start
+    end
+
+    def crawler
+      @crawler ||= Crawler.new(config, @route_set)
     end
 
     def configure

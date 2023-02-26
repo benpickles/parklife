@@ -12,7 +12,7 @@ app = Proc.new { |env|
 }
 
 Parklife.application.configure do |config|
-  config.rack_app = app
+  config.app = app
 end
 
 Parklife.application.routes do
