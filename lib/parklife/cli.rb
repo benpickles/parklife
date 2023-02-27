@@ -1,3 +1,4 @@
+require 'parklife'
 require 'thor'
 
 module Parklife

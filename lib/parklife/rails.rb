@@ -1,8 +1,4 @@
-require 'parklife/errors'
-
 raise Parklife::RailsNotDefinedError unless defined?(Rails)
-
-require 'parklife'
 
 # Allow use of the consuming Rails application's route helpers from within the
 # block when defining Parklife routes.
