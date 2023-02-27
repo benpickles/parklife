@@ -21,6 +21,12 @@ module Parklife
       end
     end
 
+    map '--version' => :version
+    desc 'version', 'output the current version of Parklife'
+    def version
+      puts Parklife::VERSION
+    end
+
     private
       def application
         @application ||= Parklife.application.tap { |app|
