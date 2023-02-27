@@ -1,3 +1,4 @@
+require 'parklife'
 require 'thor'
 
 module Parklife
@@ -22,19 +23,14 @@ module Parklife
 
     private
       def application
-        @application ||= begin
-          # Reach inside the consuming app's directory to load Parklife and
-          # apply its config. It's only at this point that the
-          # Parklife::Application is defined.
-          load discover_Parkfile(Dir.pwd)
+        @application ||= Parklife.application.tap { |app|
+          # Default output to stdout (can be overridden in the Parkfile).
+          app.config.reporter = $stdout
 
-          Parklife.application.config.reporter = $stdout
-          Parklife.application
-        end
-      end
-
-      def discover_Parkfile(dir)
-        File.expand_path('Parkfile', dir)
+          # Reach inside the consuming app's directory to apply its Parklife
+          # config.
+          app.load_Parkfile(File.join(Dir.pwd, 'Parkfile'))
+        }
       end
   end
 end

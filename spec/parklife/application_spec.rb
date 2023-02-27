@@ -40,6 +40,52 @@ RSpec.describe Parklife::Application do
     end
   end
 
+  describe '#load_Parkfile' do
+    let(:application) { described_class.new }
+    let(:parkfile_path) { File.join(tmpdir, 'Parkfile') }
+    let(:tmpdir) { Dir.mktmpdir }
+
+    context 'when the Parkfile is present' do
+      around do |example|
+        old_application = Parklife.application
+        Parklife.instance_variable_set(:@application, application)
+        example.run
+        Parklife.instance_variable_set(:@application, old_application)
+      end
+
+      before do
+        File.write(
+          parkfile_path,
+          <<~RUBY
+            Parklife.application.configure do |config|
+              config.on_404 = :warn
+            end
+
+            Parklife.application.routes do
+              get '/parkfile-exists'
+            end
+          RUBY
+        )
+      end
+
+      it 'applies its configuration' do
+        route = Parklife::Route.new('/parkfile-exists', crawl: false)
+
+        expect { application.load_Parkfile(parkfile_path) }
+          .to change { application.config.on_404 }.from(:error).to(:warn)
+          .and change { application.routes.include?(route) }.from(false).to(true)
+      end
+    end
+
+    context 'when the Parkfile does not exist' do
+      it do
+        expect {
+          application.load_Parkfile(parkfile_path)
+        }.to raise_error(Parklife::ParkfileLoadError)
+      end
+    end
+  end
+
   describe '#routes' do
     subject { described_class.new }
 

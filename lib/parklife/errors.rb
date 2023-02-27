@@ -4,17 +4,24 @@ module Parklife
   RackAppNotDefinedError = Class.new(Error)
 
   class HTTPError < Error
-    def initialize(path:, status:)
-      @path = path
+    def initialize(status, path)
       @status = status
+      @path = path
     end
 
     def message
-      %Q(#{status} response from path "#{path}")
+      %Q(#{@status} response from path "#{@path}")
+    end
+  end
+
+  class ParkfileLoadError < Error
+    def initialize(path)
+      @path = path
     end
 
-    private
-      attr_reader :path, :status
+    def message
+      %Q(Cannot load Parkfile "#{@path}")
+    end
   end
 
   class RailsNotDefinedError < Error
