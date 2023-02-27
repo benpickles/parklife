@@ -48,14 +48,14 @@ module Parklife
         when 404
           case config.on_404
           when :warn
-            $stderr.puts HTTPError.new(path: route.path, status: 404).message
+            $stderr.puts HTTPError.new(404, route.path).message
           when :skip
             return false
           else
-            raise HTTPError.new(path: route.path, status: 404)
+            raise HTTPError.new(404, route.path)
           end
         else
-          raise HTTPError.new(path: route.path, status: response.status)
+          raise HTTPError.new(response.status, route.path)
         end
 
         Utils.save_page(route.path, response.body, config)
