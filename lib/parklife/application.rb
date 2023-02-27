@@ -23,12 +23,17 @@ module Parklife
       crawler.start
     end
 
+    def configure
+      yield config
+    end
+
     def crawler
       @crawler ||= Crawler.new(config, @route_set)
     end
 
-    def configure
-      yield config
+    def load_Parkfile(path)
+      raise ParkfileLoadError.new(path) unless File.exist?(path)
+      load path
     end
 
     def routes(&block)

@@ -14,6 +14,16 @@ module Parklife
     end
   end
 
+  class ParkfileLoadError < Error
+    def initialize(path)
+      @path = path
+    end
+
+    def message
+      %Q(Cannot load Parkfile "#{@path}")
+    end
+  end
+
   class RailsNotDefinedError < Error
     def message
       'Expected Rails to be defined, require config/environment before parklife.'
