@@ -1,3 +1,8 @@
+## Version 0.4.0 - 2023-03-01
+
+- Add a `parklife --version` command.
+- No need to `require parklife` from the Parkfile.
+
 ## Version 0.3.0 - 2023-02-26
 
 - Allow overriding `config.base` from the CLI build command with the `--base` option.
