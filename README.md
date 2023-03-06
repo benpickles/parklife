@@ -4,12 +4,18 @@
 
 [Parklife](https://github.com/benpickles/parklife) is a Ruby library to render a Rack app (Rails/Sinatra/etc) to a static site so it can be served by [Netlify](https://www.netlify.com), [Now](https://zeit.co/now), [GitHub Pages](https://pages.github.com), S3, or another static server.
 
-## Installation
+## Getting started
 
 Add Parklife to your application's Gemfile and run bundle install.
 
 ```ruby
 gem 'parklife'
+```
+
+Now generate a Parkfile configuration file and build script. Include some Rails- or Sinatra-specific settings by passing `--rails` or `--sinatra`, create a GitHub Actions workflow to generate your Parklife build and push it to GitHub Pages by passing `--github-pages`.
+
+```
+$ bundle exec parklife init
 ```
 
 ## How to use Parklife with Rails
