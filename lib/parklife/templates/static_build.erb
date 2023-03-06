@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+
+set -eu
+
+<% if options[:rails] -%>
+# You probably need to run the app in production mode to ensure the correct
+# asset URLs are referenced.
+export RAILS_ENV=production
+
+<% end -%>
+# Build with Parklife - and forward arguments sent to this script.
+bundle exec parklife build "$@"
+
+<% if options[:rails] -%>
+# Generate Rails asset pipeline files.
+bundle exec rails assets:precompile
+
+<% end -%>
+# Copy all public resources to ./build.
+cp -R public/* build
+
+# List all files in the build (useful for debugging).
+find build -type f | sort

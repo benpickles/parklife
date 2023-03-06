@@ -1,0 +1,48 @@
+<% if options[:rails] -%>
+require_relative 'config/environment'
+require 'parklife/rails'
+<% else -%>
+# Assuming your Rack app lives in ./app.rb:
+require_relative 'app'
+<% end -%>
+
+Parklife.application.configure do |config|
+<% if options[:sinatra] -%>
+  # For a Sinatra "classic" app:
+  config.app = Sinatra::Application
+  #
+  # Or for Sinatra modular style:
+  # config.app = App
+
+<% elsif !options[:rails] -%>
+  config.app = App
+
+<% end -%>
+<% if options[:github_pages] -%>
+  # Serve trailing slash-less URLs from GitHub Pages.
+  config.nested_index = false
+
+<% end -%>
+  # See configuration options here:
+  # https://github.com/benpickles/parklife#configuration
+end
+
+Parklife.application.routes do
+  root crawl: true
+
+<% if options[:rails] -%>
+  # Add further paths not discovered by crawling from the root - Parklife's
+  # Rails integration lets you use the app's route helpers:
+  #
+  # get hidden_pages_path, crawl: true
+  # get feed_path(format: :atom)
+<% else -%>
+  # Add further paths not discovered by crawling from the root:
+  #
+  # get '/hidden/pages', crawl: true
+  # get '/feed.atom'
+<% end -%>
+
+  # Services typically allow a custom 404 page.
+  # get '/404.html'
+end
