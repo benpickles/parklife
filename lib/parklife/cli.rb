@@ -3,8 +3,8 @@ require 'thor'
 
 module Parklife
   class CLI < Thor
-    desc 'build', 'create a production build'
-    option :base, desc: 'set config.base at build-time - overrides the Parkfile setting'
+    desc 'build', 'Create a production build'
+    option :base, desc: 'Set config.base at build-time - overrides the Parkfile setting'
     def build
       # Parkfile config overrides.
       application.config.base = options[:base] if options[:base]
@@ -12,7 +12,7 @@ module Parklife
       application.build
     end
 
-    desc 'routes', 'list all defined routes'
+    desc 'routes', 'List all defined routes'
     def routes
       application.routes.each do |route|
         print route.path
@@ -22,7 +22,7 @@ module Parklife
     end
 
     map '--version' => :version
-    desc 'version', 'output the current version of Parklife'
+    desc 'version', 'Output the current version of Parklife'
     def version
       puts Parklife::VERSION
     end
