@@ -3,8 +3,11 @@ require 'thor'
 
 module Parklife
   class CLI < Thor
-    desc 'build', 'create a production build'
-    option :base, desc: 'set config.base at build-time - overrides the Parkfile setting'
+    include Thor::Actions
+    source_root File.expand_path('templates', __dir__)
+
+    desc 'build', 'Create a production build'
+    option :base, desc: 'Set config.base at build-time - overrides the Parkfile setting'
     def build
       # Parkfile config overrides.
       application.config.base = options[:base] if options[:base]
@@ -12,7 +15,17 @@ module Parklife
       application.build
     end
 
-    desc 'routes', 'list all defined routes'
+    desc 'init', 'Generate a starter Parkfile and friends'
+    option :github_pages, desc: 'Generate a GitHub Actions workflow to deploy to GitHub Pages', type: :boolean
+    option :rails, desc: 'Include some Rails-specific settings', type: :boolean
+    option :sinatra, desc: 'Include some Sinatra-specific settings', type: :boolean
+    def init
+      template('Parkfile.erb', 'Parkfile')
+      template('static_build.erb', 'bin/static-build', mode: 0755)
+      copy_file('github_pages.yml', '.github/workflows/parklife.yml') if options[:github_pages]
+    end
+
+    desc 'routes', 'List all defined routes'
     def routes
       application.routes.each do |route|
         print route.path
@@ -22,7 +35,7 @@ module Parklife
     end
 
     map '--version' => :version
-    desc 'version', 'output the current version of Parklife'
+    desc 'version', 'Output the current version of Parklife'
     def version
       puts Parklife::VERSION
     end
