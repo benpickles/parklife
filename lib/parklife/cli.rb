@@ -27,11 +27,11 @@ module Parklife
 
     desc 'routes', 'List all defined routes'
     def routes
-      application.routes.each do |route|
-        print route.path
-        print "\tcrawl=true" if route.crawl
-        puts
-      end
+      shell.print_table(
+        application.routes.map { |route|
+          [route.path, route.crawl ? "crawl=true" : nil]
+        }
+      )
     end
 
     map '--version' => :version

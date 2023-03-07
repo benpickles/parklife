@@ -51,10 +51,10 @@ Listing the routes included in the above Parklife application with `parklife rou
 
 ```
 $ bundle exec parklife routes
-/	crawl=true
+/             crawl=true
 /feed.atom
 /sitemap.xml
-/easter_egg	crawl=true
+/easter_egg   crawl=true
 /404.html
 ```
 
