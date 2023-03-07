@@ -1,6 +1,6 @@
 require 'parklife/application'
 
-RSpec.describe 'Parklife::Rails' do
+RSpec.describe 'Parklife Rails integration' do
   let(:path_to_rails) { File.expand_path('../../lib/parklife/rails.rb', __dir__) }
 
   context 'when Rails is defined' do
@@ -19,11 +19,10 @@ RSpec.describe 'Parklife::Rails' do
       stub_const('Rails', rails)
       allow(Parklife).to receive(:application).and_return(parklife_app)
       allow(rails_app).to receive_message_chain(:routes, :url_helpers).and_return(url_helpers)
+      load(path_to_rails)
     end
 
     it 'gives access to Rails URL helpers when defining routes' do
-      load(path_to_rails)
-
       parklife_app.routes do
         get foo_path
       end
@@ -38,6 +37,27 @@ RSpec.describe 'Parklife::Rails' do
           get foo_path
         end
       }.to raise_error(NameError, /foo_path/)
+    end
+
+    it 'configures Rails default_url_options when setting Parklife base' do
+      expect(rails_app).to receive(:default_url_options=).with({
+        host: 'localhost:3000',
+        protocol: 'https',
+      })
+
+      parklife_app.config.base = 'https://localhost:3000'
+
+      expect(rails_app).to receive(:default_url_options=).with({
+        host: 'foo.example.com',
+        protocol: 'http',
+      })
+
+      parklife_app.config.base = 'http://foo.example.com'
+
+      expect(rails_app).not_to receive(:default_url_options=)
+
+      another_parklife_app = Parklife::Application.new
+      another_parklife_app.config.base = 'http://example.com'
     end
   end
 

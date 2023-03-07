@@ -63,6 +63,27 @@ RSpec.describe Parklife::Utils do
     end
   end
 
+  describe '#host_with_port' do
+    context 'with a' do
+      subject { described_class.host_with_port(uri) }
+
+      context 'with the standard http port' do
+        let(:uri) { URI.parse('http://localhost:80') }
+        it { should eql('localhost') }
+      end
+
+      context 'with the standard https port' do
+        let(:uri) { URI.parse('https://localhost:443') }
+        it { should eql('localhost') }
+      end
+
+      context 'with a non-standard port' do
+        let(:uri) { URI.parse('http://localhost:3000') }
+        it { should eql('localhost:3000') }
+      end
+    end
+  end
+
   describe '#save_page' do
     let(:config) {
       Parklife::Config.new.tap { |c|

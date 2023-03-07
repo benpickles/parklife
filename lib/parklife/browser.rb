@@ -1,3 +1,4 @@
+require 'parklife/utils'
 require 'rack/test'
 
 module Parklife
@@ -17,12 +18,8 @@ module Parklife
 
     private
       def set_env
-        host = base.host
-        default_port = base.scheme == 'https' ? 443 : 80
-        host += ":#{base.port}" unless base.port == default_port
-
         @env = {
-          'HTTP_HOST' => host,
+          'HTTP_HOST' => Utils.host_with_port(base),
           'HTTPS' => base.scheme == 'https' ? 'on' : 'off',
           script_name: base.path.chomp('/'),
         }
