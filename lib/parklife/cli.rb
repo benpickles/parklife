@@ -15,6 +15,11 @@ module Parklife
       application.build
     end
 
+    desc 'get PATH', 'Fetch PATH from the app and output its contents'
+    def get(path)
+      puts application.crawler.get(path).body
+    end
+
     desc 'init', 'Generate a starter Parkfile and friends'
     option :github_pages, desc: 'Generate a GitHub Actions workflow to deploy to GitHub Pages', type: :boolean
     option :rails, desc: 'Include some Rails-specific settings', type: :boolean

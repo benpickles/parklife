@@ -13,6 +13,10 @@ module Parklife
       @browser = Browser.new(config.app, config.base)
     end
 
+    def get(path)
+      browser.get(path)
+    end
+
     def start
       @routes = route_set.to_a
       @visited = Set.new
@@ -40,7 +44,7 @@ module Parklife
 
         return false if already_processed
 
-        response = browser.get(route.path)
+        response = get(route.path)
 
         case response.status
         when 200
