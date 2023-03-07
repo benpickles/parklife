@@ -1,7 +1,7 @@
 raise Parklife::RailsNotDefinedError unless defined?(Rails)
 
-# Allow use of the consuming Rails application's route helpers from within the
-# block when defining Parklife routes.
-Parklife::RouteSet.include(Rails.application.routes.url_helpers)
-
 Parklife.application.config.app = Rails.application
+
+# Allow use of the Rails application's route helpers when defining Parklife
+# routes in the block form.
+Parklife.application.routes.singleton_class.include(Rails.application.routes.url_helpers)

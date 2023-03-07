@@ -30,6 +30,14 @@ RSpec.describe 'Parklife::Rails' do
 
       route = Parklife::Route.new('/foo', crawl: false)
       expect(parklife_app.routes).to include(route)
+
+      another_parklife_app = Parklife::Application.new
+
+      expect {
+        another_parklife_app.routes do
+          get foo_path
+        end
+      }.to raise_error(NameError, /foo_path/)
     end
   end
 
