@@ -3,13 +3,16 @@ raise Parklife::RailsNotDefinedError unless defined?(Rails)
 module Parklife
   module RailsConfigRefinements
     # When setting Parklife's base also configure the Rails app's
-    # default_url_options to match.
+    # default_url_options and relative_url_root to match.
     def base=(value)
       super.tap { |uri|
         Rails.application.default_url_options = {
           host: Utils.host_with_port(uri),
           protocol: uri.scheme,
         }
+
+        base_path = !uri.path.empty? && uri.path != '/' ? uri.path : nil
+        ActionController::Base.relative_url_root = base_path
       }
     end
   end
