@@ -21,6 +21,11 @@ module Parklife
       end
     end
 
+    def host_with_port(uri)
+      default_port = uri.scheme == 'https' ? 443 : 80
+      uri.port == default_port ? uri.host : "#{uri.host}:#{uri.port}"
+    end
+
     def save_page(path, content, config)
       build_path = File.join(
         config.build_dir,
