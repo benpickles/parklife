@@ -6,12 +6,10 @@ module Parklife
     include Thor::Actions
     source_root File.expand_path('templates', __dir__)
 
-    desc 'build', 'Create a production build'
-    option :base, desc: 'Set config.base at build-time - overrides the Parkfile setting'
-    def build
-      # Parkfile config overrides.
-      application.config.base = options[:base] if options[:base]
+    class_option :base, desc: 'Override config.base configured in the Parkfile'
 
+    desc 'build', 'Create a production build'
+    def build
       application.build
     end
 
@@ -54,6 +52,9 @@ module Parklife
           # Reach inside the consuming app's directory to apply its Parklife
           # config.
           app.load_Parkfile(File.join(Dir.pwd, 'Parkfile'))
+
+          # Runtime overrides.
+          app.config.base = options[:base] if options[:base]
         }
       end
   end
