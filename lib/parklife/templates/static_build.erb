@@ -7,15 +7,14 @@ set -eu
 # asset URLs are referenced.
 export RAILS_ENV=production
 
+# Generate Rails asset pipeline files. In production mode Rails will error for
+# any missing asset pipeline files.
+bundle exec rails assets:precompile
+
 <% end -%>
 # Build with Parklife - and forward arguments sent to this script.
 bundle exec parklife build "$@"
 
-<% if options[:rails] -%>
-# Generate Rails asset pipeline files.
-bundle exec rails assets:precompile
-
-<% end -%>
 # Copy all public resources to ./build.
 cp -R public/* build
 
