@@ -6,9 +6,15 @@ set -eu
 # You probably need to run the app in production mode to ensure the correct
 # asset URLs are referenced.
 export RAILS_ENV=production
+export SECRET_KEY_BASE=dummy
 
-# Generate Rails asset pipeline files. In production mode Rails will error for
-# any missing asset pipeline files.
+# If your Rails app uses ActiveRecord then this is a good point to create and
+# seed the database from db/seeds.rb.
+# bundle exec rails db:setup
+
+# Generate production-optimised assets with Sprockets and friends. This must be
+# done before generating the Parklife build as Rails will blow up if it detects
+# missing assets in production.
 bundle exec rails assets:precompile
 
 <% end -%>
