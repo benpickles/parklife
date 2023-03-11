@@ -2,8 +2,10 @@
 
 set -eu
 
+# You probably need to run the app in production mode to ensure the correct
+# asset URLs are referenced.
 export RAILS_ENV=production
-export SECRET_KEY_BASE=secret
+export SECRET_KEY_BASE=dummy
 
 # Create a production SQLite database and populate it with the app's data (see
 # db/seeds.rb for how).
@@ -11,15 +13,14 @@ bundle exec rails db:setup
 
 # Generate production-optimised assets with Sprockets and friends. This must be
 # done before generating the Parklife build as Rails will blow up if it detects
-# missing assets at runtime.
+# missing assets when running in production.
 bundle exec rails assets:precompile
 
-# Generate the Parklife build.
-bundle exec parklife build
+# Build with Parklife - and forward arguments sent to this script.
+bundle exec parklife build "$@"
 
-# Copy everything in /public to the build directory -- this includes the newly
-# generated sprockets assets and things like favicon.ico and robots.txt.
+# Copy all public resources to ./build.
 cp -R public/* build
 
-# List everything in the final build -- useful debug output.
+# List all files in the build (useful for debugging).
 find build -type f | sort

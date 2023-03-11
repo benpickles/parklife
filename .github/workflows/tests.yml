@@ -28,7 +28,7 @@ jobs:
         bundler-cache: true
         ruby-version: '2.7'
         working-directory: examples/rails
-    - run: ./parklife-build
+    - run: bin/static-build
       working-directory: examples/rails
     - run: test -f build/index.html
       working-directory: examples/rails
