@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'parklife/browser'
 require 'parklife/route'
 require 'parklife/utils'
@@ -21,7 +23,7 @@ module Parklife
       @routes = route_set.to_a
       @visited = Set.new
 
-      while route = @routes.shift
+      while (route = @routes.shift)
         processed = process_route(route)
         config.reporter.print('.') if processed
       end

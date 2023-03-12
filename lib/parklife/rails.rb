@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 raise Parklife::RailsNotDefinedError unless defined?(Rails)
 
 module Parklife

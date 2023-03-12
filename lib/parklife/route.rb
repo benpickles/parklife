@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Parklife
   class Route
     attr_reader :crawl, :path

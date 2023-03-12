@@ -10,9 +10,9 @@ RSpec.describe Parklife::Crawler do
       config.build_dir = tmpdir
     }
   }
-  let(:endpoint_200) { Proc.new { |env| [200, {}, ['200']] } }
-  let(:endpoint_302) { Proc.new { |env| [302, { 'Location' => 'http://example.com/' }, ['302']] } }
-  let(:endpoint_500) { Proc.new { |env| [500, {}, ['500']] } }
+  let(:endpoint_200) { Proc.new { [200, {}, ['200']] } }
+  let(:endpoint_302) { Proc.new { [302, { 'Location' => 'http://example.com/' }, ['302']] } }
+  let(:endpoint_500) { Proc.new { [500, {}, ['500']] } }
   let(:route_set) { Parklife::RouteSet.new }
   let(:tmpdir) { Dir.mktmpdir }
 
@@ -205,7 +205,7 @@ RSpec.describe Parklife::Crawler do
   end
 
   context 'when encountering a 404 response' do
-    let(:app) { Proc.new { |env| [404, {}, ['404']] } }
+    let(:app) { Proc.new { [404, {}, ['404']] } }
 
     before do
       config.on_404 = on_404

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'parklife/version'
@@ -16,8 +18,11 @@ Gem::Specification.new do |spec|
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   spec.metadata = {
     'changelog_uri' => 'https://github.com/benpickles/parklife/blob/main/CHANGELOG.md',
+    'rubygems_mfa_required' => 'true',
     'source_code_uri' => 'https://github.com/benpickles/parklife',
   }
+
+  spec.required_ruby_version = '>= 2.5.0'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -31,8 +36,4 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'nokogiri'
   spec.add_dependency 'rack-test'
   spec.add_dependency 'thor'
-
-  spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'rspec'
 end
