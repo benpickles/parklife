@@ -26,7 +26,8 @@ module Parklife
     option :sinatra, desc: 'Include some Sinatra-specific settings', type: :boolean
     def init
       template('Parkfile.erb', 'Parkfile')
-      template('static_build.erb', 'bin/static-build', mode: 0755)
+      template('static_build.erb', 'bin/static-build')
+      chmod('bin/static-build', 0755)
       copy_file('github_pages.yml', '.github/workflows/parklife.yml') if options[:github_pages]
     end
 
