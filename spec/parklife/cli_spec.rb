@@ -21,6 +21,8 @@ RSpec.describe Parklife::CLI do
         expect { subject }.to output.to_stdout
           .and change { File.exist?('Parkfile') }.to(true)
           .and change { File.exist?('bin/static-build') }.to(true)
+
+        expect(File.executable?('bin/static-build')).to be(true)
       end
     end
 
