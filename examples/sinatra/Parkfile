@@ -1,12 +1,4 @@
-require 'sinatra'
-
-get '/' do
-  '<a href="/hello/foo">foo</foo>, <a href="/hello/bar">bar</foo>, <a href="/hello/baz">baz</foo>'
-end
-
-get '/hello/:name' do
-  "Hello #{params[:name]}"
-end
+require_relative 'app'
 
 Parklife.application.configure do |config|
   config.app = Sinatra::Application
