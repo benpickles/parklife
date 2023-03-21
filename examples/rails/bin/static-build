@@ -7,13 +7,13 @@ set -eu
 export RAILS_ENV=production
 export SECRET_KEY_BASE=dummy
 
-# Create a production SQLite database and populate it with the app's data (see
-# db/seeds.rb for how).
+# If your Rails app uses ActiveRecord then this is a good point to create and
+# seed the database from db/seeds.rb.
 bundle exec rails db:setup
 
 # Generate production-optimised assets with Sprockets and friends. This must be
 # done before generating the Parklife build as Rails will blow up if it detects
-# missing assets when running in production.
+# missing assets in production.
 bundle exec rails assets:precompile
 
 # Build with Parklife - and forward arguments sent to this script.
