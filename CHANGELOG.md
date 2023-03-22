@@ -1,8 +1,12 @@
+## Version 0.5.1 - 2023-03-22
+
+- Ensure the generated static-build script is executable. <https://github.com/benpickles/parklife/pull/89>
+
 ## Version 0.5.0 - 2023-03-12
 
 - RuboCop. <https://github.com/benpickles/parklife/pull/87>
-- Allow passing a --base to all `parklife` commands. <https://github.com/benpickles/parklife/pull/85>
-- Configure Rails default_url_options and relative_url_root when setting Parklife base. <https://github.com/benpickles/parklife/pull/85>
+- Allow passing `--base` to all `parklife` commands. <https://github.com/benpickles/parklife/pull/85>
+- Configure Rails `default_url_options` and `relative_url_root` when setting Parklife base. <https://github.com/benpickles/parklife/pull/85>
 - Add `parklife get PATH` command to fetch and output a path. <https://github.com/benpickles/parklife/pull/83>
 - Add a `parklife init` command to create a starter Parkfile and friends. <https://github.com/benpickles/parklife/pull/82>
 - Fix the HOST header for a non-standard port. <https://github.com/benpickles/parklife/pull/81>
