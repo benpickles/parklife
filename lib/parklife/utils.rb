@@ -34,7 +34,7 @@ module Parklife
         build_path_for(path, index: config.nested_index)
       )
       FileUtils.mkdir_p(File.dirname(build_path))
-      File.write(build_path, content)
+      File.write(build_path, content, mode: 'wb')
     end
 
     def scan_for_links(html)
