@@ -76,7 +76,7 @@ build/feed.atom
 build/sitemap.xml
 ```
 
-Parklife doesn't know about assets (images, CSS, etc) so you likely also need to generate those and copy them to the build directory, see the [Rails example's full build script](examples/rails/parklife-build) for how you might do this.
+Parklife doesn't know about assets (images, CSS, etc) so you likely also need to generate those and copy them to the build directory, see the [Rails example's full build script](examples/rails/bin/static-build) for how you might do this.
 
 ## More examples
 
