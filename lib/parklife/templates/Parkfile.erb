@@ -1,6 +1,6 @@
 <% if options[:rails] -%>
-require_relative 'config/environment'
 require 'parklife/rails'
+require_relative 'config/environment'
 <% else -%>
 # Assuming your Rack app lives in ./app.rb:
 require_relative 'app'

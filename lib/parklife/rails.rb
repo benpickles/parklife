@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-raise Parklife::RailsNotDefinedError unless defined?(Rails)
+require 'rails'
 
 module Parklife
   module RailsConfigRefinements
@@ -18,12 +18,16 @@ module Parklife
       }
     end
   end
+
+  class Railtie < Rails::Railtie
+    config.after_initialize do
+      Parklife.application.config.app = Rails.application
+
+      # Allow use of the Rails application's route helpers when defining
+      # Parklife routes in the block form.
+      Parklife.application.routes.singleton_class.include(Rails.application.routes.url_helpers)
+
+      Parklife.application.config.extend(RailsConfigRefinements)
+    end
+  end
 end
-
-Parklife.application.config.app = Rails.application
-
-# Allow use of the Rails application's route helpers when defining Parklife
-# routes in the block form.
-Parklife.application.routes.singleton_class.include(Rails.application.routes.url_helpers)
-
-Parklife.application.config.extend(Parklife::RailsConfigRefinements)

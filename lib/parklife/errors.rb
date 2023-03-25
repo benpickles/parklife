@@ -16,10 +16,4 @@ module Parklife
       super %Q(Cannot load Parkfile "#{path}")
     end
   end
-
-  class RailsNotDefinedError < Error
-    def initialize(msg = 'Expected Rails to be defined, require config/environment before parklife')
-      super
-    end
-  end
 end
