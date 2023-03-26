@@ -20,7 +20,7 @@ module Parklife
     end
 
     def base=(value)
-      uri = URI.parse(value || '')
+      uri = URI === value ? value : URI.parse(value || '')
       uri.host ||= DEFAULT_HOST
       uri.scheme ||= DEFAULT_SCHEME
       @base = uri

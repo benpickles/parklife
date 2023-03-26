@@ -46,5 +46,21 @@ RSpec.describe Parklife::Config do
         expect(config.base.to_s).to eql('https://foo.example.com')
       end
     end
+
+    context 'with a URI object' do
+      let(:value) { URI.parse('https://foo.example.com/path') }
+
+      it 'uses it' do
+        expect(config.base).to be(value)
+      end
+    end
+
+    context 'with a path-only URI object' do
+      let(:value) { URI.parse('/path') }
+
+      it 'adds the default host/scheme' do
+        expect(config.base.to_s).to eql('http://example.com/path')
+      end
+    end
   end
 end
