@@ -23,13 +23,13 @@ $ bundle exec parklife init
 Parklife is configured with a file called `Parkfile` in the root of your project, here's an example `Parkfile` for an imaginary Rails app:
 
 ```ruby
+# Load Parklife's Rails-specific integration which, among other things, allows
+# you to use URL helpers within the `routes` block below.
+require 'parklife/rails'
+
 # Load the Rails application, this gives you full access to the application's
 # environment from this file - using models for example.
 require_relative 'config/environment'
-
-# Load Parklife and some Rails-specific settings allowing you to use URL
-# helpers within the `routes` block below.
-require 'parklife/rails'
 
 Parkfile.application.routes do
   # Start from the homepage and crawl all links.
