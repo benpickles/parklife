@@ -67,4 +67,8 @@ RSpec.describe 'Parklife Rails integration' do
       [rails_app.default_url_options, ActionController::Base.relative_url_root]
     }
   end
+
+  it 'removes host authorization middleware' do
+    expect(Rails.application.middleware).not_to include(ActionDispatch::HostAuthorization)
+  end
 end
