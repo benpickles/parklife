@@ -1,3 +1,17 @@
+## Version 0.6.0 - 2023-03-26
+
+- Allow assigning a URI object to config.base <https://github.com/benpickles/parklife/pull/98>
+
+- Add a `parklife config` command to output the full Parklife config <https://github.com/benpickles/parklife/pull/97>
+
+- Improved Rails integration <https://github.com/benpickles/parklife/pull/96>
+
+  Parklife now integrates with Rails via Railties and can therefore hook into the app's configuration before it's initialised. This allows Parklife to remove the host authorisation middleware that's present in development and otherwise causes Parklife requests to receive a 403 response.
+
+  **Upgrading**: For an existing Parklife+Rails integration move requiring `parklife/rails` above requiring `config/environment` in the Parkfile.
+
+- Prevent `Encoding::UndefinedConversionError` error when writing a binary response <https://github.com/benpickles/parklife/pull/94>
+
 ## Version 0.5.1 - 2023-03-22
 
 - Ensure the generated static-build script is executable. <https://github.com/benpickles/parklife/pull/89>
