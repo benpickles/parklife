@@ -15,6 +15,21 @@ module Parklife
       application.build
     end
 
+    desc 'config', 'Output the full Parklife config'
+    def config
+      reporter = application.config.reporter
+
+      shell.print_table([
+        ['app', application.config.app.inspect],
+        ['base', application.config.base.to_s],
+        ['build_dir', application.config.build_dir],
+        ['nested_index', application.config.nested_index],
+        ['on_404', application.config.on_404.inspect],
+        ['parklife/rails', defined?(::Parklife::Railtie) ? 'enabled' : '-'],
+        ['reporter', reporter == $stdout ? '$stdout' : reporter],
+      ])
+    end
+
     desc 'get PATH', 'Fetch PATH from the app and output its contents'
     def get(path)
       puts application.crawler.get(path).body
