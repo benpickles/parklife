@@ -1,0 +1,7 @@
+<h1>Home</h1>
+
+<ul>
+  <% %w(foo bar baz).each do |id| %>
+    <li><a href="/posts/<%= id %>"><%= id %></a></li>
+  <% end %>
+</ul>
