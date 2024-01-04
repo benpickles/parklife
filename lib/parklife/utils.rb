@@ -39,8 +39,17 @@ module Parklife
 
     def scan_for_links(html)
       doc = Nokogiri::HTML.parse(html)
-      doc.css('a').each do |a|
-        uri = URI.parse(a[:href])
+
+      # In this very exciting exercise we'll go through a list of elements to collect a list of candidate
+      # urls that *maybe* we'll want to crawl.
+      urls = doc.css('a').map { |v| v[:href] }
+      urls.concat(doc.css('img').map { |v| v[:src] })
+
+      # Source elements come in two flavors, for images the srcset attribute is used, for audio / video the src is used
+      urls.concat(doc.css('source').map { |v| [v[:srcset], v[:src]].compact.reject(&:empty?).first })
+
+      urls.each do |url|
+        uri = URI.parse(url)
 
         # Don't visit a URL that belongs to a different domain - for now this is
         # a guess that it's not an internal link but it also covers mailto/ftp
