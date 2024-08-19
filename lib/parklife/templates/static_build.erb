@@ -22,7 +22,9 @@ bundle exec rails assets:precompile
 bundle exec parklife build "$@"
 
 # Copy all public resources to ./build.
-cp -R public/* build
+if [ -d public ]; then
+  cp -R public/* build
+fi
 
 # List all files in the build (useful for debugging).
 find build -type f | sort
