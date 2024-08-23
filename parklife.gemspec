@@ -11,18 +11,14 @@ Gem::Specification.new do |spec|
   spec.email         = ['spideryoung@gmail.com']
 
   spec.summary       = 'Convert a Rack app into a static HTML site.'
-  spec.homepage      = 'https://github.com/benpickles/parklife'
+  spec.homepage      = 'https://parklife.dev'
   spec.license       = 'MIT'
-
-  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
-  # to allow pushing to a single host or delete this section to allow pushing to any host.
-  spec.metadata = {
-    'changelog_uri' => 'https://github.com/benpickles/parklife/blob/main/CHANGELOG.md',
-    'rubygems_mfa_required' => 'true',
-    'source_code_uri' => 'https://github.com/benpickles/parklife',
-  }
-
   spec.required_ruby_version = '>= 2.5.0'
+
+  spec.metadata['changelog_uri'] = 'https://github.com/benpickles/parklife/blob/main/CHANGELOG.md'
+  spec.metadata['homepage_uri'] = spec.homepage
+  spec.metadata['rubygems_mfa_required'] = 'true'
+  spec.metadata['source_code_uri'] = 'https://github.com/benpickles/parklife'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
