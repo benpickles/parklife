@@ -1,3 +1,7 @@
+## Version 0.6.1 - 2024-08-23
+
+- Don't error when the public directory doesn't exist <https://github.com/benpickles/parklife/pull/105>
+
 ## Version 0.6.0 - 2023-03-26
 
 - Allow assigning a URI object to config.base <https://github.com/benpickles/parklife/pull/98>
