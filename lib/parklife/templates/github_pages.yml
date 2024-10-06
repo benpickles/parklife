@@ -15,11 +15,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
-    - uses: actions/configure-pages@v3
+    - uses: actions/configure-pages@v5
       id: pages
 
       # Build with Parklife and use its GitHub Pages URL (either its custom
@@ -27,7 +27,7 @@ jobs:
     - run: bin/static-build --base "${{ steps.pages.outputs.base_url }}"
 
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v3
       if: github.ref == 'refs/heads/main' # Only upload on main branch.
       with:
         path: build/
@@ -45,4 +45,4 @@ jobs:
     steps:
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v1
+      uses: actions/deploy-pages@v4
