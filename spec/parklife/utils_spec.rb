@@ -144,6 +144,12 @@ RSpec.describe Parklife::Utils do
         ❌ <a href="">empty</a>
         ✅ <a href="/baz">baz</a>
         ❌ <a href="ftp://example.com/foo/bar">ftp</a>
+
+        ✅ <img src="/foo.jpg" alt="Foo is life">
+        ❌ <img src="https://www.example.com/foo.jpg" alt="Foo is life">
+
+        ✅ <audio><source src="/foo.mp3" type="audio/mp3"></audio>
+        ✅ <picture><source srcset="/foo.webp"><source srcset="/foo-squared.jpg"><img src="/default-foo.jpg"></picture>
       HTML
     }
 
@@ -153,7 +159,14 @@ RSpec.describe Parklife::Utils do
       }.to yield_successive_args(
         '/foo',
         '/bar',
-        '/baz'
+        '/baz',
+
+        '/foo.jpg',
+        '/default-foo.jpg',
+
+        '/foo.mp3',
+        '/foo.webp',
+        '/foo-squared.jpg',
       )
     end
   end
