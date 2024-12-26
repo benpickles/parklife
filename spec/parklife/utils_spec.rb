@@ -144,6 +144,7 @@ RSpec.describe Parklife::Utils do
         ❌ <a href="">empty</a>
         ✅ <a href="/baz">baz</a>
         ❌ <a href="ftp://example.com/foo/bar">ftp</a>
+        ❌ <a>no-href</a>
       HTML
     }
 

@@ -40,6 +40,9 @@ module Parklife
     def scan_for_links(html)
       doc = Nokogiri::HTML.parse(html)
       doc.css('a').each do |a|
+        # Skip if there is no href attribute
+        next unless a[:href]
+
         uri = URI.parse(a[:href])
 
         # Don't visit a URL that belongs to a different domain - for now this is
