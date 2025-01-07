@@ -13,9 +13,10 @@ jobs:
           - '3.1'
           - '3.2'
           - '3.3'
+          - '3.4'
     name: Ruby ${{ matrix.ruby }} RSpec
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
@@ -26,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     name: RuboCop
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
