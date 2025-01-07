@@ -51,6 +51,8 @@ jobs:
   sinatra:
     runs-on: ubuntu-latest
     name: Sinatra example
+    env:
+      APP_ENV: production
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
