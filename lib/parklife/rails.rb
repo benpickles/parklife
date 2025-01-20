@@ -19,6 +19,12 @@ module Parklife
     end
   end
 
+  module RailsRouteSetRefinements
+    def default_url_options
+      Rails.application.default_url_options
+    end
+  end
+
   class Railtie < Rails::Railtie
     initializer 'parklife.disable_host_authorization' do |app|
       # The offending middleware is included in Rails (6+) development mode and
@@ -44,6 +50,7 @@ module Parklife
 
       # Allow use of the Rails application's route helpers when defining
       # Parklife routes in the block form.
+      Parklife.application.routes.singleton_class.include(RailsRouteSetRefinements)
       Parklife.application.routes.singleton_class.include(Rails.application.routes.url_helpers)
 
       Parklife.application.config.extend(RailsConfigRefinements)
