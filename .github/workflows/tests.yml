@@ -29,7 +29,7 @@ jobs:
           - rails: rails_8.0
             ruby: '2.7'
 
-          # Rails 7.2 requires Ruby 2.7.
+          # Rails 7.2 requires Ruby 3.1.
           - rails: rails_7.2
             ruby: '3.0'
           - rails: rails_7.2
