@@ -8,7 +8,7 @@ module Parklife
     # default_url_options and relative_url_root to match.
     def base=(value)
       super.tap { |uri|
-        Rails.application.default_url_options = {
+        app.default_url_options = {
           host: Utils.host_with_port(uri),
           protocol: uri.scheme,
         }
