@@ -53,5 +53,17 @@ module Parklife
 
       Parklife.application.config.extend(RailsConfigRefinements)
     end
+
+    config.after_initialize do |app|
+      # Read the Rails app's URL config and apply it to Parklife's so that the
+      # Rails config can be used as the single source of truth.
+      host, protocol = app.default_url_options.values_at(:host, :protocol)
+      protocol = 'https' if app.config.force_ssl
+      path = ActionController::Base.relative_url_root
+
+      Parklife.application.config.base.scheme = protocol if protocol
+      Parklife.application.config.base.host = host if host
+      Parklife.application.config.base.path = path if path
+    end
   end
 end
