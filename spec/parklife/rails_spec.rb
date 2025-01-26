@@ -6,23 +6,30 @@ RSpec.describe 'Parklife Rails integration' do
   let(:parklife_app) { Parklife::Application.new }
   let(:rails_app) {
     Class.new(Rails::Application) do
+      config.active_support.to_time_preserves_timezone = :zone
       config.eager_load = false
       config.logger = Logger.new('/dev/null')
     end
   }
 
+  def initialize!
+    rails_app.initialize!
+  end
+
   before do
     allow(Parklife).to receive(:application).and_return(parklife_app)
     Rails.application = rails_app
-    Rails.application.initialize!
   end
 
   after do
+    ActionController::Base.relative_url_root = nil
     ActiveSupport::Dependencies.autoload_paths = []
     ActiveSupport::Dependencies.autoload_once_paths = []
   end
 
   it 'gives access to Rails URL helpers when defining routes' do
+    initialize!
+
     rails_app.routes.draw do
       get :foo, to: proc { [200, {}, 'foo'] }
     end
@@ -44,6 +51,8 @@ RSpec.describe 'Parklife Rails integration' do
   end
 
   it 'configures Rails default_url_options and relative_url_root when setting Parklife base' do
+    initialize!
+
     parklife_app.config.base = 'https://localhost:3000/foo'
 
     expect(rails_app.default_url_options).to eql({
@@ -69,6 +78,42 @@ RSpec.describe 'Parklife Rails integration' do
   end
 
   it 'removes host authorization middleware' do
+    initialize!
+
     expect(Rails.application.middleware).not_to include(ActionDispatch::HostAuthorization)
+  end
+
+  context 'setting the Parklife base from Rails config on initialize' do
+    it 'uses Parklife defaults when nothing is set' do
+      initialize!
+
+      expect(parklife_app.config.base).to have_attributes(
+        host: 'example.com',
+        path: '',
+        scheme: 'http',
+      )
+    end
+
+    it 'copies the values from default_url_options and relative_url_root' do
+      rails_app.default_url_options = { host: 'foo', protocol: 'bar' }
+      ActionController::Base.relative_url_root = '/baz'
+
+      initialize!
+
+      expect(parklife_app.config.base).to have_attributes(
+        host: 'foo',
+        path: '/baz',
+        scheme: 'bar',
+      )
+    end
+
+    it 'always uses https if force_ssl=true' do
+      rails_app.default_url_options = { protocol: 'foo' }
+      rails_app.config.force_ssl = true
+
+      initialize!
+
+      expect(parklife_app.config.base.scheme).to eql('https')
+    end
   end
 end

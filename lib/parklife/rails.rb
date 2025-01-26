@@ -8,7 +8,7 @@ module Parklife
     # default_url_options and relative_url_root to match.
     def base=(value)
       super.tap { |uri|
-        Rails.application.default_url_options = {
+        app.default_url_options = {
           host: Utils.host_with_port(uri),
           protocol: uri.scheme,
         }
@@ -43,17 +43,27 @@ module Parklife
       if defined?(ActionDispatch::HostAuthorization)
         app.middleware.delete(ActionDispatch::HostAuthorization)
       end
-    end
 
-    config.after_initialize do
-      Parklife.application.config.app = Rails.application
+      Parklife.application.config.app = app
 
       # Allow use of the Rails application's route helpers when defining
       # Parklife routes in the block form.
       Parklife.application.routes.singleton_class.include(RailsRouteSetRefinements)
-      Parklife.application.routes.singleton_class.include(Rails.application.routes.url_helpers)
+      Parklife.application.routes.singleton_class.include(app.routes.url_helpers)
 
       Parklife.application.config.extend(RailsConfigRefinements)
+    end
+
+    config.after_initialize do |app|
+      # Read the Rails app's URL config and apply it to Parklife's so that the
+      # Rails config can be used as the single source of truth.
+      host, protocol = app.default_url_options.values_at(:host, :protocol)
+      protocol = 'https' if app.config.force_ssl
+      path = ActionController::Base.relative_url_root
+
+      Parklife.application.config.base.scheme = protocol if protocol
+      Parklife.application.config.base.host = host if host
+      Parklife.application.config.base.path = path if path
     end
   end
 end
