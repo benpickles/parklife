@@ -6,7 +6,12 @@ RSpec.describe 'Parklife Rails integration' do
   let(:parklife_app) { Parklife::Application.new }
   let(:rails_app) {
     Class.new(Rails::Application) do
+      # Silence warning in Rails 7.1.
+      config.active_support.cache_format_version = 7.0
+
+      # Silence warning in Rails 8.0.
       config.active_support.to_time_preserves_timezone = :zone
+
       config.eager_load = false
       config.logger = Logger.new('/dev/null')
     end

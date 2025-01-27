@@ -7,6 +7,7 @@ gem "bundler"
 gem "rake"
 gem "rspec"
 gem "rubocop"
-gem "rails", "~> 7.0"
+gem "concurrent-ruby", "< 1.3.5"
+gem "rails", "~> 7.0.0"
 
 gemspec path: "../"

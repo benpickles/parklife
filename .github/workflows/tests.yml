@@ -34,6 +34,10 @@ jobs:
             ruby: '3.0'
           - rails: rails_7.2
             ruby: '2.7'
+
+          # Rails 7.0 doesn't work out of the box with Ruby 3.4.
+          - rails: rails_7.0
+            ruby: '3.4'
     env:
       BUNDLE_GEMFILE: gemfiles/${{ matrix.rails }}.gemfile
     name: Rails (Ruby ${{ matrix.ruby }} / ${{ matrix.rails }})
