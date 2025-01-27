@@ -51,8 +51,6 @@ jobs:
   sinatra:
     runs-on: ubuntu-latest
     name: Sinatra example
-    env:
-      APP_ENV: production
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
@@ -60,7 +58,7 @@ jobs:
         bundler-cache: true
         ruby-version: '2.7'
         working-directory: examples/sinatra
-    - run: bundle exec parklife build
+    - run: bin/static-build
       working-directory: examples/sinatra
     - run: test -f build/index.html
       working-directory: examples/sinatra

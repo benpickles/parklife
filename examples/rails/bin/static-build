@@ -2,8 +2,7 @@
 
 set -eu
 
-# You probably need to run the app in production mode to ensure the correct
-# asset URLs are referenced.
+# Run the app in production mode to ensure correct asset URLs are generated etc.
 export RAILS_ENV=production
 export SECRET_KEY_BASE=dummy
 

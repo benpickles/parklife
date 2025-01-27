@@ -49,6 +49,9 @@ RSpec.describe Parklife::CLI do
         expect { subject }.to output.to_stdout
 
         expect(File.read('Parkfile')).to include('Sinatra::Application')
+
+        expect(File.read('bin/static-build'))
+          .to include('APP_ENV=production')
       end
     end
 
