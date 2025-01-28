@@ -1,11 +1,25 @@
+# Assuming your Sinatra app lives in ./app.rb:
 require_relative 'app'
 
 Parklife.application.configure do |config|
+  # For a Sinatra "classic" app:
   config.app = Sinatra::Application
+  #
+  # Or for Sinatra modular style:
+  # config.app = App
+
+  # See configuration options here:
+  # https://github.com/benpickles/parklife#configuration
 end
 
 Parklife.application.routes do
   root crawl: true
 
-  get '/hello/other'
+  # Add further paths not discovered by crawling from the root:
+  #
+  # get '/hidden/pages', crawl: true
+  # get '/feed.atom'
+
+  # Services typically allow a custom 404 page.
+  # get '/404.html'
 end
