@@ -2,6 +2,10 @@
 require 'parklife/rails'
 require_relative 'config/environment'
 <% else -%>
+<% if options[:sinatra] -%>
+require 'parklife/sinatra'
+
+<% end -%>
 # Assuming your <%= options[:sinatra] ? 'Sinatra' : 'Rack' %> app lives in ./app.rb:
 require_relative 'app'
 <% end -%>
@@ -11,8 +15,9 @@ Parklife.application.configure do |config|
   # For a Sinatra "classic" app:
   config.app = Sinatra::Application
   #
-  # Or for Sinatra modular style:
+  # For a modular-style Sinatra app the Parklife extension must be explicitly registered:
   # config.app = App
+  # App.register Parklife::Sinatra
 
 <% elsif !options[:rails] -%>
   config.app = App

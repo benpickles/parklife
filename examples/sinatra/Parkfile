@@ -1,3 +1,5 @@
+require 'parklife/sinatra'
+
 # Assuming your Sinatra app lives in ./app.rb:
 require_relative 'app'
 
@@ -5,8 +7,9 @@ Parklife.application.configure do |config|
   # For a Sinatra "classic" app:
   config.app = Sinatra::Application
   #
-  # Or for Sinatra modular style:
+  # For a modular-style Sinatra app the Parklife extension must be explicitly registered:
   # config.app = App
+  # App.register Parklife::Sinatra
 
   # See configuration options here:
   # https://github.com/benpickles/parklife#configuration
