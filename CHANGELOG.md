@@ -1,3 +1,10 @@
+## Version 0.7.0 - 2025-02-03
+
+- Add support for Rails 8 and add test infrastructure to ensure future compatibility with Rails 7.0, 7.1, and 8.0. <https://github.com/benpickles/parklife/pull/115>, <https://github.com/benpickles/parklife/pull/117>, <https://github.com/benpickles/parklife/pull/121>
+- Improve out-of-the-box compatibility with Rails by reading `default_url_options`, `relative_url_root`, and `force_ssl` settings on boot and applying them to Parklife's `config.base` (`force_ssl` has been set to `true` in `production.rb` since Rails 7.1). <https://github.com/benpickles/parklife/pull/118>
+- Improve out-of-the-box compatibility with Sinatra 4.1 which has host authorisation middleware enabled by default in development mode and would otherwise respond to Parklife requests with a 403 status. Additionally the generated Sinatra production build script now sets the environment variable `APP_ENV=production` to enable production mode. <https://github.com/benpickles/parklife/pull/123>, <https://github.com/benpickles/parklife/pull/122>
+- When discovering HTML links ignore `<a>` elements without an `href`. <https://github.com/benpickles/parklife/pull/107>
+
 ## Version 0.6.1 - 2024-08-23
 
 - Don't error when the public directory doesn't exist <https://github.com/benpickles/parklife/pull/105>
