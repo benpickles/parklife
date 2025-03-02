@@ -66,5 +66,9 @@ module Parklife
         @route_set
       end
     end
+
+    def use(plugin)
+      plugin.call(self)
+    end
   end
 end

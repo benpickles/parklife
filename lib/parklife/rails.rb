@@ -46,6 +46,13 @@ module Parklife
         Parklife.application.config.base.scheme = protocol if protocol
         Parklife.application.config.base.host = host if host
         Parklife.application.config.base.path = path if path
+
+        # If the host Rails app includes Parklife's ActiveStorage engine then
+        # automatically apply the ActiveStorage plugin.
+        if app.config.respond_to?(:parklife_active_storage)
+          require_relative 'rails/activestorage_plugin'
+          Parklife.application.use(ActiveStoragePlugin)
+        end
       end
     end
   end
