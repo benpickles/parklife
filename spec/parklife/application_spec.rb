@@ -38,6 +38,22 @@ RSpec.describe Parklife::Application do
         }.to raise_error(Parklife::RackAppNotDefinedError)
       end
     end
+
+    context 'with callbacks' do
+      let(:app) { endpoint_200 }
+      let(:build_dir) { tmpdir }
+
+      it 'they are called in the correct order' do
+        stuff = []
+
+        subject.after_build { stuff << 2 }
+        subject.before_build { stuff << 1 }
+
+        subject.build
+
+        expect(stuff).to eql([1, 2])
+      end
+    end
   end
 
   describe '#load_Parkfile' do
