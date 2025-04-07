@@ -13,6 +13,16 @@ module Parklife
     def initialize
       @config = Config.new
       @route_set = RouteSet.new
+      @after_build_callbacks = []
+      @before_build_callbacks = []
+    end
+
+    def after_build(&block)
+      @after_build_callbacks << block
+    end
+
+    def before_build(&block)
+      @before_build_callbacks << block
     end
 
     def build
@@ -22,7 +32,15 @@ module Parklife
       FileUtils.rm_rf(config.build_dir)
       Dir.mkdir(config.build_dir)
 
+      @before_build_callbacks.each do |callback|
+        callback.call(self)
+      end
+
       crawler.start
+
+      @after_build_callbacks.each do |callback|
+        callback.call(self)
+      end
     end
 
     def configure
