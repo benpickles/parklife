@@ -21,6 +21,17 @@ RSpec.describe 'Parklife Rails integration' do
     rails_app.initialize!
   end
 
+  around do |example|
+    # Initialising each test Rails app in their own current working directory
+    # stops Zeitwerk complaining about the same directory being managed by
+    # different loaders.
+    Dir.mktmpdir do |dir|
+      Dir.chdir dir do
+        example.run
+      end
+    end
+  end
+
   before do
     allow(Parklife).to receive(:application).and_return(parklife_app)
     Rails.application = rails_app

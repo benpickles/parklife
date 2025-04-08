@@ -25,7 +25,7 @@ module Parklife
         ['build_dir', application.config.build_dir],
         ['nested_index', application.config.nested_index],
         ['on_404', application.config.on_404.inspect],
-        ['parklife/rails', defined?(::Parklife::Railtie) ? 'enabled' : '-'],
+        ['parklife/rails', defined?(::Parklife::Rails::Railtie) ? 'enabled' : '-'],
         ['parklife/sinatra', defined?(::Parklife::Sinatra) ? 'enabled' : '-'],
         ['reporter', reporter == $stdout ? '$stdout' : reporter],
       ])
