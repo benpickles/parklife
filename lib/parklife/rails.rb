@@ -26,9 +26,11 @@ module Parklife
 
         Parklife.application.config.app = app
 
+        # This ensures next tweak is compatibile with Rails 8+ lazy routes.
+        Parklife.application.routes.extend(RouteSetRefinements)
+
         # Allow use of the Rails application's route helpers when defining
         # Parklife routes in the block form.
-        Parklife.application.routes.singleton_class.include(RouteSetRefinements)
         Parklife.application.routes.singleton_class.include(app.routes.url_helpers)
 
         Parklife.application.config.extend(ConfigRefinements)
