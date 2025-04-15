@@ -29,8 +29,16 @@ module Parklife
       raise BuildDirNotDefinedError if config.build_dir.nil?
       raise RackAppNotDefinedError if config.app.nil?
 
-      FileUtils.rm_rf(config.build_dir)
-      Dir.mkdir(config.build_dir)
+      if Dir.exist?(config.build_dir)
+        FileUtils.rm_rf(
+          Dir.glob(
+            File.join(config.build_dir, '*'),
+            File::FNM_DOTMATCH
+          )
+        )
+      else
+        Dir.mkdir(config.build_dir)
+      end
 
       @before_build_callbacks.each do |callback|
         callback.call(self)

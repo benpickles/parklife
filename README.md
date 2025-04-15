@@ -110,7 +110,7 @@ Parklife.application.config.nested_index = false
 
 ### Changing the build output directory
 
-The build directory shouldn't exist and is destroyed and recreated before each build. Defaults to `build`.
+The build directory's contents are removed before each build. Defaults to `build`.
 
 ```ruby
 Parklife.application.config.build_dir = 'my/build/dir'
