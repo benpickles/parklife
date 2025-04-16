@@ -28,6 +28,39 @@ RSpec.describe Parklife::Application do
       end
     end
 
+    context 'when config.build_dir does not exist' do
+      let(:app) { endpoint_200 }
+      let(:build_dir) { File.join(tmpdir, 'foo') }
+
+      it 'it is created' do
+        expect {
+          subject.build
+        }.to change {
+          Dir.exist?(build_dir)
+        }.to(true)
+      end
+    end
+
+    context 'when config.build_dir already exists' do
+      let(:app) { endpoint_200 }
+      let(:build_dir) { tmpdir }
+
+      it 'it remains and its contents are removed' do
+        FileUtils.touch(File.join(tmpdir, 'foo.html'))
+        FileUtils.mkdir_p(File.join(tmpdir, 'nested', 'directory'))
+        FileUtils.touch(File.join(tmpdir, 'nested', 'directory', 'bar.html'))
+        FileUtils.touch(File.join(tmpdir, '.hidden'))
+
+        expect {
+          subject.build
+        }.not_to change {
+          File.stat(tmpdir).ino
+        }
+
+        expect(Dir.glob('**/*', File::FNM_DOTMATCH, base: tmpdir)).to eql(['.'])
+      end
+    end
+
     context 'when config.app is not set' do
       let(:app) { nil }
       let(:build_dir) { tmpdir }
