@@ -30,12 +30,7 @@ module Parklife
       raise RackAppNotDefinedError if config.app.nil?
 
       if Dir.exist?(config.build_dir)
-        FileUtils.rm_rf(
-          Dir.glob(
-            File.join(config.build_dir, '*'),
-            File::FNM_DOTMATCH
-          )
-        )
+        FileUtils.rm_rf(Pathname.new(config.build_dir).children)
       else
         Dir.mkdir(config.build_dir)
       end
