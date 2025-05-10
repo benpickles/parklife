@@ -11,6 +11,12 @@ module Parklife
     end
   end
 
+  class HTTPRedirectError < Error
+    def initialize(status, from, to)
+      super %Q(#{status} redirect from "#{from}" to "#{to}")
+    end
+  end
+
   class ParkfileLoadError < Error
     def initialize(path)
       super %Q(Cannot load Parkfile "#{path}")
