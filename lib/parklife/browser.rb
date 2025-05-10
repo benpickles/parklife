@@ -18,6 +18,10 @@ module Parklife
       session.get(path, nil, env)
     end
 
+    def url_for(path)
+      base.dup.tap { _1.path = path }
+    end
+
     private
       def set_env
         @env = {

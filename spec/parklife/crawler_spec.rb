@@ -11,7 +11,8 @@ RSpec.describe Parklife::Crawler do
     }
   }
   let(:endpoint_200) { Proc.new { [200, {}, ['200']] } }
-  let(:endpoint_302) { Proc.new { [302, { 'Location' => 'http://example.com/' }, ['302']] } }
+  let(:endpoint_301) { Proc.new { [301, { 'Location' => 'https://foo.example.org/bar' }, ['301']] } }
+  let(:endpoint_302) { Proc.new { [302, { 'Location' => 'https://foo.example.org/bar' }, ['302']] } }
   let(:endpoint_500) { Proc.new { [500, {}, ['500']] } }
   let(:route_set) { Parklife::RouteSet.new }
   let(:tmpdir) { Dir.mktmpdir }
@@ -85,7 +86,19 @@ RSpec.describe Parklife::Crawler do
     end
   end
 
-  context 'when an endpoint responds with a redirect' do
+  context 'when an endpoint responds with a 301 redirect' do
+    let(:app) { endpoint_301 }
+
+    it do
+      route_set.get('/redirect-me')
+
+      expect {
+        subject.start
+      }.to raise_error(Parklife::HTTPRedirectError, '301 redirect from "http://example.com/redirect-me" to "https://foo.example.org/bar"')
+    end
+  end
+
+  context 'when an endpoint responds with a 302 redirect' do
     let(:app) { endpoint_302 }
 
     it do
@@ -93,7 +106,7 @@ RSpec.describe Parklife::Crawler do
 
       expect {
         subject.start
-      }.to raise_error(Parklife::HTTPError, '302 response from path "/redirect-me"')
+      }.to raise_error(Parklife::HTTPRedirectError, '302 redirect from "http://example.com/redirect-me" to "https://foo.example.org/bar"')
     end
   end
 
