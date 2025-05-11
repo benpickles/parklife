@@ -51,6 +51,12 @@ module Parklife
         case response.status
         when 200
           # Continue processing the route.
+        when 301, 302
+          raise HTTPRedirectError.new(
+            response.status,
+            browser.uri_for(route.path),
+            response.headers['location']
+          )
         when 404
           case config.on_404
           when :warn

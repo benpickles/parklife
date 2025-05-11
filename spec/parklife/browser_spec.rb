@@ -56,4 +56,15 @@ RSpec.describe Parklife::Browser do
       end
     end
   end
+
+  describe '#uri_for' do
+    it 'returns a new URI with the supplied path' do
+      base = URI.parse('http://example.org')
+      browser = described_class.new(nil, base)
+      uri_for = browser.uri_for('/foo')
+
+      expect(uri_for.to_s).to eql('http://example.org/foo')
+      expect(uri_for).not_to be(base)
+    end
+  end
 end
