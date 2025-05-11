@@ -100,7 +100,7 @@ RSpec.describe 'Parklife Rails integration' do
     end
 
     it 'copies the values from default_url_options and relative_url_root' do
-      rails_app.default_url_options = { host: 'foo', protocol: 'bar' }
+      rails_app.default_url_options = { host: 'foo', port: 3000, protocol: 'bar' }
       ActionController::Base.relative_url_root = '/baz'
 
       initialize!
@@ -108,6 +108,7 @@ RSpec.describe 'Parklife Rails integration' do
       expect(parklife_app.config.base).to have_attributes(
         host: 'foo',
         path: '/baz',
+        port: 3000,
         scheme: 'bar',
       )
     end
