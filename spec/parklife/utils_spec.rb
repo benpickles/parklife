@@ -124,7 +124,7 @@ RSpec.describe Parklife::Utils do
         described_class.save_page('foo', 'foo content', config)
         described_class.save_page('bar', 'bar content', config)
 
-        expect(build_files).to eql(['bar.html', 'foo.html'])
+        expect(build_files).to contain_exactly('bar.html', 'foo.html')
 
         file_path = File.join(tmpdir, 'bar.html')
 
