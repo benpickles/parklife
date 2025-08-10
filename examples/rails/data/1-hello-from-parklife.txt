@@ -1,3 +1,0 @@
-Hello from Parklife
-
-Some token body content.
