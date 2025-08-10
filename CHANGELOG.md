@@ -1,3 +1,13 @@
+## Unreleased
+
+## Version 0.8.0.beta1 - 2025-08-10
+
+- Remove out-of-the-box Rails integration in preparation for a separate gem. <https://github.com/benpickles/parklife/pull/131>
+- Include the port when automatically assigning the base from Rails `default_url_options`. <https://github.com/benpickles/parklife/pull/130>
+- Improve the HTTP redirect error message to include the request's full URL and redirect location. <https://github.com/benpickles/parklife/pull/129>
+- Empty the build directory instead of deleting it. <https://github.com/benpickles/parklife/pull/125>
+- Resurrect build callbacks (`before_build`/`after_build`). <https://github.com/benpickles/parklife/pull/124>
+
 ## Version 0.7.0 - 2025-02-03
 
 - Add support for Rails 8 and add test infrastructure to ensure future compatibility with Rails 7.0, 7.1, and 8.0. <https://github.com/benpickles/parklife/pull/115>, <https://github.com/benpickles/parklife/pull/117>, <https://github.com/benpickles/parklife/pull/121>
