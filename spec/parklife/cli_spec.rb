@@ -33,7 +33,7 @@ RSpec.describe Parklife::CLI do
         expect { subject }.to output.to_stdout
 
         expect(File.read('Parkfile')).to include(
-          "require 'parklife/rails'",
+          "require_relative 'config/environment'",
           'feed_path(format: :atom)'
         )
 
