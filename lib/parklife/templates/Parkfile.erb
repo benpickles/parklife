@@ -1,5 +1,6 @@
 <% if options[:rails] -%>
-require 'parklife/rails'
+# Load your application, this activates the Parklife/Rails integration and gives
+# you access to route helpers and models in this file.
 require_relative 'config/environment'
 <% else -%>
 <% if options[:sinatra] -%>
