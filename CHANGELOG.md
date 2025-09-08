@@ -1,5 +1,9 @@
 ## Unreleased
 
+## Version 0.8.0 - 2025-09-08
+
+Note that **Parklife's Rails integration has been moved into a separate gem** with some additional functionality, [see the `parklife-rails` repo for more information](https://github.com/benpickles/parklife-rails).
+
 ## Version 0.8.0.beta1 - 2025-08-10
 
 - Remove out-of-the-box Rails integration in preparation for a separate gem. <https://github.com/benpickles/parklife/pull/131>
