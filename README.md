@@ -12,38 +12,36 @@ Add Parklife to your application's Gemfile and run bundle install.
 gem 'parklife'
 ```
 
-Now generate a Parkfile configuration file and build script. Include some Rails- or Sinatra-specific settings by passing `--rails` or `--sinatra`, create a GitHub Actions workflow to generate your Parklife build and push it to GitHub Pages by passing `--github-pages`.
+Now generate a Parkfile configuration file and build script. Include some Rails- or Sinatra-specific settings by passing `--rails` or `--sinatra`, create a GitHub Actions workflow to generate your Parklife build and deploy it to GitHub Pages by passing `--github-pages`.
 
 ```
 $ bundle exec parklife init
 ```
 
-## How to use Parklife with Rails
+## How to use Parklife
+
+> [!NOTE]
+> See the [`parklife-rails` repository](https://github.com/benpickles/parklife-rails) for how to use Parklife with Rails.
 
 Parklife is configured with a file called `Parkfile` in the root of your project, here's an example `Parkfile` for an imaginary Rails app:
 
 ```ruby
-# Load Parklife's Rails-specific integration which, among other things, allows
-# you to use URL helpers within the `routes` block below.
-require 'parklife/rails'
-
-# Load the Rails application, this gives you full access to the application's
-# environment from this file - using models for example.
-require_relative 'config/environment'
+# Assuming your Rack app lives in ./app.rb:
+require_relative 'app'
 
 Parkfile.application.routes do
   # Start from the homepage and crawl all links.
   root crawl: true
 
   # Some extra paths that aren't discovered while crawling.
-  get feed_path(format: :atom)
-  get sitemap_path(format: :xml)
+  get '/feed.atom'
+  get '/sitemap.xml'
 
   # A couple more hidden pages.
-  get easter_egg_path, crawl: true
+  get '/easter_egg', crawl: true
 
   # Services typically allow a custom 404 page.
-  get '404.html'
+  get '/404.html'
 end
 ```
 
@@ -76,11 +74,11 @@ build/feed.atom
 build/sitemap.xml
 ```
 
-Parklife doesn't know about assets (images, CSS, etc) so you likely also need to generate those and copy them to the build directory, see the [Rails example's full build script](examples/rails/bin/static-build) for how you might do this.
+Parklife doesn't know about assets (images, CSS, etc) so you likely also need to generate those and copy them to the build directory.
 
 ## More examples
 
-Take a look at the [Rails](examples/rails/Parkfile), [Rack](examples/rack/Parkfile) and [Sinatra](examples/sinatra/Parkfile) working examples within this repository.
+Take a look at the [`parklife-rails` example app](https://github.com/benpickles/parklife-rails/tree/main/example-app), and the [Rack](examples/rack/Parkfile) and [Sinatra](examples/sinatra/Parkfile) working examples within this repository.
 
 ## Configuration
 
