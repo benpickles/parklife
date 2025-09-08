@@ -3,9 +3,15 @@
 set -eu
 
 <% if options[:rails] -%>
-# Run the app in production mode to ensure correct asset URLs are generated etc.
+# Run the app in production mode to ensure correct asset URLs are generated.
 export RAILS_ENV=production
+
+# Prevent most logs from outputting to stdout during a build.
+export RAILS_LOG_LEVEL=warn
+
+# Enable precompiling assets.
 export SECRET_KEY_BASE=dummy
+export SECRET_KEY_BASE_DUMMY=1
 
 # If your Rails app uses ActiveRecord then this is a good point to create and
 # seed the database from db/seeds.rb.
