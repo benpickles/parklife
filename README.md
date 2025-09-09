@@ -23,7 +23,7 @@ $ bundle exec parklife init
 > [!NOTE]
 > See the [`parklife-rails` repository](https://github.com/benpickles/parklife-rails) for how to use Parklife with Rails.
 
-Parklife is configured with a file called `Parkfile` in the root of your project, here's an example `Parkfile` for an imaginary Rails app:
+Parklife is configured with a file called `Parkfile` in the root of your project, here's an example `Parkfile` for an imaginary Rack app:
 
 ```ruby
 # Assuming your Rack app lives in ./app.rb:
