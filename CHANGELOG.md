@@ -1,5 +1,9 @@
 ## Unreleased
 
+## Version 0.8.1 - 2025-12-21
+
+- Move out-of-the-box Sinatra integration into a separate [`parklife-sinatra`](https://github.com/benpickles/parklife-sinatra) gem. <https://github.com/benpickles/parklife/pull/133>
+
 ## Version 0.8.0 - 2025-09-08
 
 Note that **Parklife's Rails integration has been moved into a separate gem** with some additional functionality, [see the `parklife-rails` repo for more information](https://github.com/benpickles/parklife-rails).
