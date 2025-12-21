@@ -26,7 +26,7 @@ module Parklife
         ['nested_index', application.config.nested_index],
         ['on_404', application.config.on_404.inspect],
         ['parklife-rails', defined?(::Parklife::Rails) ? 'enabled' : '-'],
-        ['parklife/sinatra', defined?(::Parklife::Sinatra) ? 'enabled' : '-'],
+        ['parklife-sinatra', defined?(::Parklife::Sinatra) ? 'enabled' : '-'],
         ['reporter', reporter == $stdout ? '$stdout' : reporter],
       ])
     end
