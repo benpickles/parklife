@@ -32,18 +32,3 @@ jobs:
       working-directory: examples/roda
     - run: test -f build/index.html
       working-directory: examples/roda
-
-  sinatra:
-    runs-on: ubuntu-latest
-    name: Sinatra example
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-      with:
-        bundler-cache: true
-        ruby-version: '3.4'
-        working-directory: examples/sinatra
-    - run: bin/static-build
-      working-directory: examples/sinatra
-    - run: test -f build/index.html
-      working-directory: examples/sinatra

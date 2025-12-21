@@ -78,7 +78,7 @@ Parklife doesn't know about assets (images, CSS, etc) so you likely also need to
 
 ## More examples
 
-Take a look at the [`parklife-rails` example app](https://github.com/benpickles/parklife-rails/tree/main/example-app), and the [Rack](examples/rack/Parkfile) and [Sinatra](examples/sinatra/Parkfile) working examples within this repository.
+Take a look at the [`parklife-rails` example app](https://github.com/benpickles/parklife-rails/tree/main/example-app), the [`parklife-sinatra` example app](https://github.com/benpickles/parklife-sinatra/tree/main/example-app), and the [Rack](examples/rack/Parkfile) example in this repository.
 
 ## Configuration
 
