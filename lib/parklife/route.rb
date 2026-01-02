@@ -14,6 +14,10 @@ module Parklife
     end
     alias_method :eql?, :==
 
+    def as_crawl
+      crawl ? self : self.class.new(path, crawl: true)
+    end
+
     def hash
       [self.class, path, crawl].hash
     end

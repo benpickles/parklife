@@ -7,13 +7,14 @@ require 'set'
 
 module Parklife
   class Crawler
-    attr_reader :browser, :build, :config, :route_set
+    attr_reader :browser, :build, :config, :route_set, :visited
 
     def initialize(config, route_set)
       @config = config
       @route_set = route_set
       @browser = Browser.new(config.app, config.base)
       @build = Build.new(config.build_dir, nested_index: config.nested_index)
+      @visited = Set.new
     end
 
     def get(path)
@@ -22,7 +23,6 @@ module Parklife
 
     def start
       @routes = route_set.to_a
-      @visited = Set.new
 
       while (route = @routes.shift)
         processed = process_route(route)
@@ -32,20 +32,22 @@ module Parklife
       config.reporter.puts
     end
 
+    def visited?(route)
+      if route.crawl
+        # A crawl=true route is only counted as visited when it has already been
+        # crawled, if it's been visited by a non-crawl route then it must be
+        # visited again so it can be crawled.
+        @visited.include?(route)
+      else
+        # A crawl=false route is counted as visited whether it was previously
+        # visited with either a crawl or non-crawl route.
+        @visited.include?(route) || @visited.include?(route.as_crawl)
+      end
+    end
+
     private
       def process_route(route)
-        already_processed = if route.crawl
-          # No need to re-process an already-crawled route (but do re-process
-          # a route that has been visited but not crawled).
-          @visited.include?(route)
-        else
-          # This route isn't being crawled so there's no need to re-process
-          # it if it has already been visited or crawled.
-          crawled_route = Route.new(route.path, crawl: true)
-          @visited.include?(route) || @visited.include?(crawled_route)
-        end
-
-        return false if already_processed
+        return false if visited?(route)
 
         response = get(route.path)
 
@@ -85,7 +87,7 @@ module Parklife
 
             # Don't revisit the route if it has already been visited with
             # crawl=true but do revisit if it wasn't crawled.
-            next if @visited.include?(route)
+            next if visited?(route)
 
             @routes << route
           end
