@@ -1,32 +1,50 @@
 # frozen_string_literal: true
-require 'parklife/browser'
-require 'parklife/build'
-require 'parklife/route'
-require 'parklife/utils'
 require 'set'
+require_relative 'browser'
+require_relative 'build'
+require_relative 'responder/not_found'
+require_relative 'responder/ok'
+require_relative 'responder/redirect'
+require_relative 'responder/unknown'
+require_relative 'route'
 
 module Parklife
   class Crawler
-    attr_reader :browser, :build, :config, :route_set, :visited
+    RESPONDERS = {
+      200 => Responder::Ok,
+      301 => Responder::Redirect,
+      302 => Responder::Redirect,
+      404 => Responder::NotFound,
+    }
 
-    def initialize(config, route_set)
+    attr_reader :browser, :build, :config, :routes, :visited
+
+    def initialize(config, routes)
       @config = config
-      @route_set = route_set
+      @routes = routes.to_a
       @browser = Browser.new(config.app, config.base)
       @build = Build.new(config.build_dir, nested_index: config.nested_index)
       @visited = Set.new
+      @responder_for_status = {}
     end
 
     def get(path)
       browser.get(path)
     end
 
-    def start
-      @routes = route_set.to_a
+    def responder_for_status(status)
+      @responder_for_status[status] ||= RESPONDERS
+        .fetch(status, Responder::Unknown)
+        .new(self)
+    end
 
-      while (route = @routes.shift)
-        processed = process_route(route)
-        config.reporter.print('.') if processed
+    def start
+      while (route = routes.shift)
+        next if visited?(route)
+        response = get(route.path)
+        @visited << route
+        responder_for_status(response.status).call(route, response)
+        config.reporter.print('.')
       end
 
       config.reporter.puts
@@ -44,56 +62,5 @@ module Parklife
         @visited.include?(route) || @visited.include?(route.with_crawl)
       end
     end
-
-    private
-      def process_route(route)
-        return false if visited?(route)
-
-        response = get(route.path)
-
-        case response.status
-        when 200
-          build.add(route, response)
-        when 301, 302
-          raise HTTPRedirectError.new(
-            response.status,
-            browser.uri_for(route.path),
-            response.headers['location']
-          )
-        when 404
-          case config.on_404
-          when :warn
-            $stderr.puts HTTPError.new(404, route.path).message
-          when :skip
-            return false
-          else
-            raise HTTPError.new(404, route.path)
-          end
-        else
-          raise HTTPError.new(response.status, route.path)
-        end
-
-        @visited << route
-
-        if route.crawl
-          Utils.scan_for_links(response.body) do |path|
-            # When an app is mounted at a path it responds to URLs that must
-            # exclude the mount path but it generates links that include it (if
-            # it is correctly configured). This prefix must therefore be
-            # stripped from links discovered via crawling.
-            baseless_path = path.delete_prefix(config.base.path)
-
-            route = Route.new(baseless_path, crawl: true)
-
-            # Don't revisit the route if it has already been visited with
-            # crawl=true but do revisit if it wasn't crawled.
-            next if visited?(route)
-
-            @routes << route
-          end
-        end
-
-        true
-      end
   end
 end

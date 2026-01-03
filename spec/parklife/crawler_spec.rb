@@ -19,9 +19,6 @@ RSpec.describe Parklife::Crawler do
       [200, { 'content-type' => content_type }, ['200']]
     }
   }
-  let(:endpoint_301) { Proc.new { [301, { 'Location' => 'https://foo.example.org/bar' }, ['301']] } }
-  let(:endpoint_302) { Proc.new { [302, { 'Location' => 'https://foo.example.org/bar' }, ['302']] } }
-  let(:endpoint_500) { Proc.new { [500, {}, ['500']] } }
   let(:route_set) { Parklife::RouteSet.new }
 
   subject { described_class.new(config, route_set) }
@@ -84,42 +81,6 @@ RSpec.describe Parklife::Crawler do
       index = File.join(build_dir, 'index.html')
 
       expect(File.read(index)).to eql('https,foo.example.com')
-    end
-  end
-
-  context 'when an endpoint responds with a 301 redirect' do
-    let(:app) { endpoint_301 }
-
-    it do
-      route_set.get('/redirect-me')
-
-      expect {
-        subject.start
-      }.to raise_error(Parklife::HTTPRedirectError, '301 redirect from "http://example.com/redirect-me" to "https://foo.example.org/bar"')
-    end
-  end
-
-  context 'when an endpoint responds with a 302 redirect' do
-    let(:app) { endpoint_302 }
-
-    it do
-      route_set.get('/redirect-me')
-
-      expect {
-        subject.start
-      }.to raise_error(Parklife::HTTPRedirectError, '302 redirect from "http://example.com/redirect-me" to "https://foo.example.org/bar"')
-    end
-  end
-
-  context 'when an endpoint does not respond with a 200' do
-    let(:app) { endpoint_500 }
-
-    it do
-      route_set.get('/everything-is-a-500')
-
-      expect {
-        subject.start
-      }.to raise_error(Parklife::HTTPError, '500 response from path "/everything-is-a-500"')
     end
   end
 
@@ -218,48 +179,38 @@ RSpec.describe Parklife::Crawler do
     end
   end
 
-  context 'when encountering a 404 response' do
-    let(:app) { Proc.new { [404, {}, ['404']] } }
+  context 'when a custom responder is registered for a status code' do
+    let(:app) {
+      Proc.new {
+        [418, {}, ['ignored']]
+      }
+    }
 
-    before do
-      config.on_404 = on_404
-      route_set.get '/404'
-    end
+    let(:teapot) {
+      Class.new(Parklife::Responder::Base) do
+        def call(route, response)
+          response.body = ["I'm a teapot"]
+          crawler.build.add(route, response)
+        end
+      end
+    }
 
     around do |example|
-      old_stderr, $stderr = $stderr, StringIO.new
+      Parklife::Crawler::RESPONDERS[418] = teapot
       example.run
-      $stderr = old_stderr
+      Parklife::Crawler::RESPONDERS.delete(418)
     end
 
-    context 'with on_404=:error setting' do
-      let(:on_404) { :error }
+    it 'is used' do
+      route_set.get '/'
 
-      it do
-        expect {
-          subject.start
-        }.to raise_error(Parklife::HTTPError, '404 response from path "/404"')
-      end
-    end
+      subject.start
 
-    context 'with on_404=:warn setting' do
-      let(:on_404) { :warn }
+      expect(build_files).to contain_exactly('index.html')
 
-      it 'skips the response and prints a warning to stderr' do
-        subject.start
-        expect($stderr.string.chomp).to eql('404 response from path "/404"')
-        expect(build_files).to be_empty
-      end
-    end
+      index = File.join(build_dir, 'index.html')
 
-    context 'with on_404=:skip setting' do
-      let(:on_404) { :skip }
-
-      it 'skips the response and does not output anything to stderr' do
-        subject.start
-        expect($stderr.string).to be_empty
-        expect(build_files).to be_empty
-      end
+      expect(File.read(index)).to eql("I'm a teapot")
     end
   end
 end
