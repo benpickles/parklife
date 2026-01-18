@@ -2,11 +2,53 @@
 require 'parklife/build'
 
 RSpec.describe Parklife::Build do
-  def add(path, body)
+  let(:tmpdir) { Dir.mktmpdir }
+
+  def add(path, body, headers = {})
     build.add(
       Parklife::Route.new(path, crawl: false),
-      Rack::MockResponse.new(200, {}, body)
+      Rack::MockResponse.new(200, headers, body)
     )
+  end
+
+  describe '.from_dir' do
+    subject(:build) { described_class.from_dir(dir) }
+
+    context 'when everything is good and proper' do
+      let(:dir) { Pathname.new(tmpdir) }
+
+      it 'returns a Build pre-populated with data from .parklife/build.yml' do
+        existing_yaml = {
+          'config' => {
+            'nested_index' => false,
+          },
+          'paths' => {
+            '/foo' => {
+              'build_path' => 'foo.html',
+              'etag' => 'etag',
+            },
+          }
+        }.to_yaml
+
+        file = dir.join(Parklife::Build::META_PATH)
+        file.dirname.mkpath
+        file.write(existing_yaml)
+
+        expect(build.nested_index).to be(false)
+        expect(build.etag('/foo')).to eql('etag')
+        expect(build.to_yaml).to eql(existing_yaml)
+      end
+    end
+
+    context 'when the directory does not exist' do
+      let(:dir) { Pathname.new('nope') }
+      it { should be_nil }
+    end
+
+    context 'when the directory does not contain a metadata file' do
+      let(:dir) { Pathname.new(tmpdir) }
+      it { should be_nil }
+    end
   end
 
   describe '.path_for' do
@@ -134,7 +176,7 @@ RSpec.describe Parklife::Build do
     let(:tmpdir) { Dir.mktmpdir }
 
     it 'generates YAML with the expected shape' do
-      add('/foo', 'foo')
+      add('/foo', 'foo', { 'Etag' => 'etag' })
       add('/bar', 'bar')
 
       data = YAML.safe_load(build.to_yaml)
@@ -146,6 +188,7 @@ RSpec.describe Parklife::Build do
         'paths' => {
           '/foo' => {
             'build_path' => 'foo.html',
+            'etag' => 'etag',
           },
           '/bar' => {
             'build_path' => 'bar.html',

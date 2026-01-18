@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'fileutils'
+require 'parklife/build'
 require 'parklife/config'
 require 'parklife/crawler'
 require 'parklife/errors'
@@ -50,7 +51,11 @@ module Parklife
     end
 
     def crawler
-      @crawler ||= Crawler.new(config, @route_set)
+      @crawler ||= Crawler.new(
+        config,
+        @route_set,
+        config.cache_dir ? Build.from_dir(config.cache_dir) : nil
+      )
     end
 
     def load_Parkfile(path)

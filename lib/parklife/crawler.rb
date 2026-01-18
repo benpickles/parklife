@@ -3,10 +3,12 @@ require 'set'
 require_relative 'browser'
 require_relative 'build'
 require_relative 'responder/not_found'
+require_relative 'responder/not_modified'
 require_relative 'responder/ok'
 require_relative 'responder/redirect'
 require_relative 'responder/unknown'
 require_relative 'route'
+require_relative 'utils'
 
 module Parklife
   class Crawler
@@ -14,22 +16,49 @@ module Parklife
       200 => Responder::Ok,
       301 => Responder::Redirect,
       302 => Responder::Redirect,
+      304 => Responder::NotModified,
       404 => Responder::NotFound,
     }
 
-    attr_reader :browser, :build, :config, :routes, :visited
+    attr_reader :browser, :build, :cache, :config, :routes, :visited
 
-    def initialize(config, routes)
+    def initialize(config, routes, cache)
       @config = config
       @routes = routes.to_a
+      @cache = cache
       @browser = Browser.new(config.app, config.base)
       @build = Build.new(config.build_dir, nested_index: config.nested_index)
       @visited = Set.new
       @responder_for_status = {}
     end
 
+    def crawl(html)
+      Utils.scan_for_links(html) do |path|
+        # If the app is mounted at a subdirectory then it responds to paths that
+        # *exclude* the subdirectory and generates links that *include* the
+        # subdirectory (so if the app is mounted at "/foo" and serving "/bar"
+        # then the full path would be "/foo/bar" and a generated link would
+        # include the mount path like "/foo/link").
+        #
+        # Anyway, this mount path prefix must be trimmed from link paths so that
+        # correct app routes are created.
+        baseless_path = path.delete_prefix(config.base.path)
+        new_route = Route.new(baseless_path, crawl: true)
+
+        next if visited?(new_route)
+
+        routes << new_route
+      end
+    end
+
     def get(path)
-      browser.get(path)
+      headers = if (etag = cache&.etag(path))
+        { 'HTTP_IF_NONE_MATCH' => etag }
+      else
+        nil
+      end
+
+      browser.get(path, headers: headers)
     end
 
     def responder_for_status(status)

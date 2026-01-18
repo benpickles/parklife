@@ -1,9 +1,21 @@
 # frozen_string_literal: true
+require 'fileutils'
 require 'yaml'
 
 module Parklife
   class Build
     META_PATH = File.join('.parklife', 'build.yml')
+
+    def self.from_dir(dir)
+      return unless dir.exist?
+      path = dir.join(META_PATH)
+      return unless path.exist?
+      data = YAML.safe_load(path.read)
+
+      build = new(dir, nested_index: data.dig('config', 'nested_index'))
+      build.paths.merge!(data['paths'])
+      build
+    end
 
     def self.path_for(path, media_type: nil, nested_index:)
       # Remove leading/trailing slashes.
@@ -36,13 +48,35 @@ module Parklife
     end
 
     def add(route, response)
-      build_path = self.class.path_for(
+      build_path = self.build_path(route, response)
+      write(build_path, response.body)
+      add_path_meta(route, response, build_path)
+    end
+
+    def build_path(route, response)
+      self.class.path_for(
         route.path,
         media_type: response.media_type,
         nested_index: nested_index,
       )
-      write(build_path, response.body)
-      paths[route.path] = { 'build_path' => build_path }.compact
+    end
+
+    def copy(src, route, response)
+      build_path = self.build_path(route, response)
+
+      dest = dir.join(build_path)
+      dest.dirname.mkpath
+      FileUtils.cp(src, dest)
+
+      add_path_meta(route, response, build_path)
+    end
+
+    def etag(path)
+      paths.dig(path, 'etag')
+    end
+
+    def get(route, response)
+      dir.join(build_path(route, response))
     end
 
     def to_yaml
@@ -63,5 +97,13 @@ module Parklife
     def write_meta
       write(META_PATH, to_yaml)
     end
+
+    private
+      def add_path_meta(route, response, build_path)
+        paths[route.path] = {
+          'build_path' => build_path,
+          'etag' => response['Etag'],
+        }.compact
+      end
   end
 end
