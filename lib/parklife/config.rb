@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require 'pathname'
 require 'stringio'
 require 'uri'
 
@@ -8,8 +8,8 @@ module Parklife
     DEFAULT_HOST = 'example.com'
     DEFAULT_SCHEME = 'http'
 
-    attr_accessor :app, :build_dir, :nested_index, :on_404, :reporter
-    attr_reader :base
+    attr_accessor :app, :nested_index, :on_404, :reporter
+    attr_reader :base, :build_dir
 
     def initialize
       self.base = nil
@@ -24,6 +24,10 @@ module Parklife
       uri.host ||= DEFAULT_HOST
       uri.scheme ||= DEFAULT_SCHEME
       @base = uri
+    end
+
+    def build_dir=(value)
+      @build_dir = Pathname.new(value)
     end
   end
 end

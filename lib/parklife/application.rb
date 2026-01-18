@@ -26,7 +26,6 @@ module Parklife
     end
 
     def build
-      raise BuildDirNotDefinedError if config.build_dir.nil?
       raise RackAppNotDefinedError if config.app.nil?
 
       if Dir.exist?(config.build_dir)

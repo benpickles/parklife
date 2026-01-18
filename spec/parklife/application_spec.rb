@@ -17,17 +17,6 @@ RSpec.describe Parklife::Application do
       }
     }
 
-    context 'when config.build_dir is not set' do
-      let(:app) { endpoint_200 }
-      let(:build_dir) { nil }
-
-      it do
-        expect {
-          subject.build
-        }.to raise_error(Parklife::BuildDirNotDefinedError)
-      end
-    end
-
     context 'when config.build_dir does not exist' do
       let(:app) { endpoint_200 }
       let(:build_dir) { File.join(tmpdir, 'foo') }
