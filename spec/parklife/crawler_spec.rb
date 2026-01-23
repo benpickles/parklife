@@ -225,6 +225,12 @@ RSpec.describe Parklife::Crawler do
       route_set.get '/404'
     end
 
+    around do |example|
+      old_stderr, $stderr = $stderr, StringIO.new
+      example.run
+      $stderr = old_stderr
+    end
+
     context 'with on_404=:error setting' do
       let(:on_404) { :error }
 
@@ -238,27 +244,19 @@ RSpec.describe Parklife::Crawler do
     context 'with on_404=:warn setting' do
       let(:on_404) { :warn }
 
-      around do |example|
-        old_stderr, $stderr = $stderr, StringIO.new
-        example.run
-        $stderr = old_stderr
-      end
-
-      it do
+      it 'skips the response and prints a warning to stderr' do
         subject.start
-
         expect($stderr.string.chomp).to eql('404 response from path "/404"')
-
-        expect(build_files).to match_array(['404/index.html'])
+        expect(build_files).to be_empty
       end
     end
 
     context 'with on_404=:skip setting' do
       let(:on_404) { :skip }
 
-      it do
+      it 'skips the response and does not output anything to stderr' do
         subject.start
-
+        expect($stderr.string).to be_empty
         expect(build_files).to be_empty
       end
     end
