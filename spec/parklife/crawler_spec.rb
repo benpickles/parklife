@@ -27,7 +27,7 @@ RSpec.describe Parklife::Crawler do
     FileUtils.remove_entry_secure(build_dir)
   end
 
-  context 'with standard config' do
+  context 'with default config' do
     let(:app) { endpoint_200 }
 
     it do
@@ -36,11 +36,26 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      expect(build_files).to match_array(['foo/index.html', 'index.html'])
+      expect(build_files).to contain_exactly(
+        '.parklife/build.yml',
+        'foo/index.html',
+        'index.html',
+      )
 
       index = File.join(build_dir, 'index.html')
 
       expect(File.read(index)).to eql('200')
+    end
+  end
+
+  context 'when config.skip_build_meta=true' do
+    let(:app) { endpoint_200 }
+
+    it 'does not include metadata with the build' do
+      config.skip_build_meta = true
+      route_set.get '/foo'
+      subject.start
+      expect(build_files).to eql(['foo/index.html'])
     end
   end
 
@@ -57,12 +72,13 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      expect(build_files).to match_array([
+      expect(build_files).to contain_exactly(
+        '.parklife/build.yml',
         'foo.html',
         'foo.xml',
         'index.html',
         'nested/foo.html',
-      ])
+      )
     end
   end
 
@@ -71,6 +87,7 @@ RSpec.describe Parklife::Crawler do
 
     it do
       config.base = 'https://foo.example.com'
+      config.skip_build_meta = true
 
       route_set.get '/'
 
@@ -90,7 +107,7 @@ RSpec.describe Parklife::Crawler do
     it 'the build still occurs' do
       subject.start
 
-      expect(build_files).to be_empty
+      expect(build_files).to eql(['.parklife/build.yml'])
     end
   end
 
@@ -122,14 +139,15 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      expect(build_files).to match_array([
+      expect(build_files).to contain_exactly(
+        '.parklife/build.yml',
         'another/index.html',
         'bar/index.html',
         'baz/index.html',
         'foo/index.html',
         'index.html',
         'other/index.html',
-      ])
+      )
     end
   end
 
@@ -167,6 +185,7 @@ RSpec.describe Parklife::Crawler do
       subject.start
 
       expect(build_files).to match_array([
+        '.parklife/build.yml',
         'index.html',
         'foo/index.html',
         'bar/index.html',
@@ -202,6 +221,8 @@ RSpec.describe Parklife::Crawler do
     end
 
     it 'is used' do
+      config.skip_build_meta = true
+
       route_set.get '/'
 
       subject.start

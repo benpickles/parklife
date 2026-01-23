@@ -8,7 +8,7 @@ module Parklife
     DEFAULT_HOST = 'example.com'
     DEFAULT_SCHEME = 'http'
 
-    attr_accessor :app, :nested_index, :on_404, :reporter
+    attr_accessor :app, :nested_index, :on_404, :reporter, :skip_build_meta
     attr_reader :base, :build_dir
 
     def initialize
@@ -17,6 +17,7 @@ module Parklife
       self.nested_index = true
       self.on_404 = :error
       self.reporter = StringIO.new
+      self.skip_build_meta = false
     end
 
     def base=(value)

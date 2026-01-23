@@ -34,7 +34,9 @@ RSpec.describe Parklife::Application do
       let(:app) { endpoint_200 }
       let(:build_dir) { tmpdir }
 
-      it 'it remains and its contents are removed' do
+      it 'remains but its contents are removed' do
+        subject.config.skip_build_meta = true
+
         FileUtils.touch(File.join(tmpdir, 'foo.html'))
         FileUtils.mkdir_p(File.join(tmpdir, 'nested', 'directory'))
         FileUtils.touch(File.join(tmpdir, 'nested', 'directory', 'bar.html'))

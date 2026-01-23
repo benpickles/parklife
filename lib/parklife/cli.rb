@@ -11,7 +11,9 @@ module Parklife
     class_option :base, desc: 'Override config.base configured in the Parkfile'
 
     desc 'build', 'Create a production build'
+    option :skip_build_meta, desc: 'Do not include Parklife build metadata', type: :boolean
     def build
+      application.config.skip_build_meta = options[:skip_build_meta] if options.key?(:skip_build_meta)
       application.build
     end
 

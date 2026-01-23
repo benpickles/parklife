@@ -47,6 +47,8 @@ module Parklife
         config.reporter.print('.')
       end
 
+      build.write_meta unless config.skip_build_meta
+
       config.reporter.puts
     end
 
