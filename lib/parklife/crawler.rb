@@ -50,7 +50,7 @@ module Parklife
 
         case response.status
         when 200
-          # Continue processing the route.
+          Utils.save_page(route.path, response.body, config)
         when 301, 302
           raise HTTPRedirectError.new(
             response.status,
@@ -69,8 +69,6 @@ module Parklife
         else
           raise HTTPError.new(response.status, route.path)
         end
-
-        Utils.save_page(route.path, response.body, config)
 
         @visited << route
 

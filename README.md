@@ -116,10 +116,13 @@ Parklife.application.config.build_dir = 'my/build/dir'
 
 ### Handling a 404
 
-By default if Parklife encounters a 404 response when fetching a route it will raise an exception (the `:error` setting) and stop the build. Other values are:
+By default if Parklife encounters a 404 response when fetching a route it will raise an exception which stops the build (the `:error` setting).
 
-- `:warn` - output a message to `stderr`, save the response, and continue processing.
-- `:skip` - silently ignore and not save the response, and continue processing.
+Possible values are:
+
+- `:error` (default) - raise an exception which stops the build.
+- `:skip` - do not save the response, continue processing.
+- `:warn` - output a message to `stderr`, do not save the response, continue processing.
 
 ```ruby
 Parklife.application.config.on_404 = :warn
