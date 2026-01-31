@@ -3,63 +3,32 @@ require 'parklife/build'
 
 RSpec.describe Parklife::Build do
   describe '.path_for' do
-    subject { described_class.path_for(path, nested_index: nested_index) }
+    [
+      ['/',               true,  'index.html'],
+      ['/bits/of/stuff',  true,  'bits/of/stuff/index.html'],
+      ['/bits/of/stuff/', true,  'bits/of/stuff/index.html'],
+      ['bits/of/stuff',   true,  'bits/of/stuff/index.html'],
+      ['/some/path.json', true,  'some/path.json'],
+      ['/',               false, 'index.html'],
+      ['/bits/of/stuff',  false, 'bits/of/stuff.html'],
+      ['/bits/of/stuff/', false, 'bits/of/stuff.html'],
+      ['/some/path.json', false, 'some/path.json'],
+      ['/index.json',     false, 'index.json'],
+    ].each do |(path, nested_index, expected)|
+      settings = {
+        path: path,
+        nested_index: nested_index,
+      }.map { |k, v| "#{k}=#{v.inspect}" }.join(' ')
 
-    context 'when nested_index=true' do
-      let(:nested_index) { true }
-
-      context 'with the root path' do
-        let(:path) { '/' }
-        it { should eql('index.html') }
-      end
-
-      context 'with a nested path' do
-        let(:path) { '/bits/of/stuff' }
-        it { should eql('bits/of/stuff/index.html') }
-      end
-
-      context 'with a nested path with trailing slash' do
-        let(:path) { '/bits/of/stuff/' }
-        it { should eql('bits/of/stuff/index.html') }
-      end
-
-      context 'with a nested directory with a no preceding slash' do
-        let(:path) { 'bits/of/stuff' }
-        it { should eql('bits/of/stuff/index.html') }
-      end
-
-      context 'with an extension' do
-        let(:path) { '/some/path.json' }
-        it { should eql('some/path.json') }
-      end
-    end
-
-    context 'when nested_index=false' do
-      let(:nested_index) { false }
-
-      context 'with the root path' do
-        let(:path) { '/' }
-        it { should eql('index.html') }
-      end
-
-      context 'with a nested path' do
-        let(:path) { '/bits/of/stuff' }
-        it { should eql('bits/of/stuff.html') }
-      end
-
-      context 'with a nested path with trailing slash' do
-        let(:path) { '/bits/of/stuff/' }
-        it { should eql('bits/of/stuff.html') }
-      end
-
-      context 'with an extension' do
-        let(:path) { '/some/path.json' }
-        it { should eql('some/path.json') }
-      end
-
-      context 'with an extension at the root' do
-        let(:path) { '/index.json' }
-        it { should eql('index.json') }
+      context "with #{settings}" do
+        it do
+          expect(
+            described_class.path_for(
+              path,
+              nested_index: nested_index,
+            )
+          ).to eql(expected)
+        end
       end
     end
   end
