@@ -10,7 +10,14 @@ RSpec.describe Parklife::Crawler do
       config.build_dir = tmpdir
     }
   }
-  let(:endpoint_200) { Proc.new { [200, {}, ['200']] } }
+  let(:endpoint_200) {
+    Proc.new { |env|
+      request = Rack::Request.new(env)
+      extname = File.extname(request.path)
+      content_type = Rack::Mime.mime_type(extname, 'text/html')
+      [200, { 'content-type' => content_type }, ['200']]
+    }
+  }
   let(:endpoint_301) { Proc.new { [301, { 'Location' => 'https://foo.example.org/bar' }, ['301']] } }
   let(:endpoint_302) { Proc.new { [302, { 'Location' => 'https://foo.example.org/bar' }, ['302']] } }
   let(:endpoint_500) { Proc.new { [500, {}, ['500']] } }

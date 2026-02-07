@@ -10,9 +10,6 @@ AllCops:
 Layout:
   Enabled: false
 
-Layout/EmptyLineAfterMagicComment:
-  Enabled: true
-
 Lint/AmbiguousBlockAssociation:
   Enabled: false
 

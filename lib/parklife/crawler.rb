@@ -1,18 +1,19 @@
 # frozen_string_literal: true
-
 require 'parklife/browser'
+require 'parklife/build'
 require 'parklife/route'
 require 'parklife/utils'
 require 'set'
 
 module Parklife
   class Crawler
-    attr_reader :browser, :config, :route_set
+    attr_reader :browser, :build, :config, :route_set
 
     def initialize(config, route_set)
       @config = config
       @route_set = route_set
       @browser = Browser.new(config.app, config.base)
+      @build = Build.new(config.build_dir, nested_index: config.nested_index)
     end
 
     def get(path)
@@ -50,7 +51,7 @@ module Parklife
 
         case response.status
         when 200
-          Utils.save_page(route.path, response.body, config)
+          build.add(route, response)
         when 301, 302
           raise HTTPRedirectError.new(
             response.status,
