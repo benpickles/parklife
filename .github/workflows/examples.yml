@@ -3,6 +3,21 @@ name: Examples
 on: push
 
 jobs:
+  camping:
+    runs-on: ubuntu-latest
+    name: Camping example
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+      with:
+        bundler-cache: true
+        ruby-version: '3.2'
+        working-directory: examples/camping
+    - run: bundle exec parklife build
+      working-directory: examples/camping
+    - run: test -f build/index.html
+      working-directory: examples/camping
+
   rack:
     runs-on: ubuntu-latest
     name: Rack example

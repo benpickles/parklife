@@ -1,0 +1,9 @@
+require_relative 'camp'
+
+Parklife.application.configure do |config|
+  config.app = App
+end
+
+Parklife.application.routes do
+  root crawl: true
+end
