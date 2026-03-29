@@ -4,10 +4,11 @@ require 'parklife/route_set'
 require 'tmpdir'
 
 RSpec.describe Parklife::Crawler do
+  let(:build_dir) { Dir.mktmpdir }
   let(:config) {
     Parklife::Config.new.tap { |config|
       config.app = app
-      config.build_dir = tmpdir
+      config.build_dir = build_dir
     }
   }
   let(:endpoint_200) {
@@ -22,18 +23,11 @@ RSpec.describe Parklife::Crawler do
   let(:endpoint_302) { Proc.new { [302, { 'Location' => 'https://foo.example.org/bar' }, ['302']] } }
   let(:endpoint_500) { Proc.new { [500, {}, ['500']] } }
   let(:route_set) { Parklife::RouteSet.new }
-  let(:tmpdir) { Dir.mktmpdir }
 
   subject { described_class.new(config, route_set) }
 
   after do
-    FileUtils.remove_entry_secure(tmpdir)
-  end
-
-  def build_files
-    @build_files ||= Dir.glob('**/*', base: tmpdir).select { |path|
-      File.file?(File.join(tmpdir, path))
-    }
+    FileUtils.remove_entry_secure(build_dir)
   end
 
   context 'with standard config' do
@@ -47,7 +41,7 @@ RSpec.describe Parklife::Crawler do
 
       expect(build_files).to match_array(['foo/index.html', 'index.html'])
 
-      index = File.join(tmpdir, 'index.html')
+      index = File.join(build_dir, 'index.html')
 
       expect(File.read(index)).to eql('200')
     end
@@ -85,9 +79,9 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      expect(Dir.children(tmpdir)).to eql(['index.html'])
+      expect(build_files).to eql(['index.html'])
 
-      index = File.join(tmpdir, 'index.html')
+      index = File.join(build_dir, 'index.html')
 
       expect(File.read(index)).to eql('https,foo.example.com')
     end
@@ -135,7 +129,7 @@ RSpec.describe Parklife::Crawler do
     it 'the build still occurs' do
       subject.start
 
-      expect(Dir.children(tmpdir)).to be_empty
+      expect(build_files).to be_empty
     end
   end
 
@@ -218,7 +212,7 @@ RSpec.describe Parklife::Crawler do
         'baz/index.html',
       ])
 
-      foo = File.join(tmpdir, 'foo/index.html')
+      foo = File.join(build_dir, 'foo/index.html')
 
       expect(File.read(foo)).to eql('<a href="/subdir/bar">/bar</a>')
     end

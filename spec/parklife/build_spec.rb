@@ -77,11 +77,11 @@ RSpec.describe Parklife::Build do
   describe '#add' do
     let(:build) {
       described_class.new(
-        Pathname.new(build_dir),
+        Pathname.new(dir),
         nested_index: nested_index,
       )
     }
-    let(:tmpdir) { Dir.mktmpdir }
+    let(:build_dir) { Dir.mktmpdir }
 
     def add(path, body)
       build.add(
@@ -90,14 +90,8 @@ RSpec.describe Parklife::Build do
       )
     end
 
-    def build_files
-      @build_files ||= Dir.glob('**/*', base: tmpdir).select { |path|
-        File.file?(File.join(tmpdir, path))
-      }
-    end
-
     context 'with a nested directory that does not exist' do
-      let(:build_dir) { File.join(tmpdir, 'nested') }
+      let(:dir) { File.join(build_dir, 'nested') }
       let(:nested_index) { true }
 
       it 'creates the required directories' do
@@ -114,7 +108,7 @@ RSpec.describe Parklife::Build do
     end
 
     context 'when the directory exists and taking config.nested_index into account' do
-      let(:build_dir) { tmpdir }
+      let(:dir) { build_dir }
       let(:nested_index) { false }
 
       it do
@@ -123,7 +117,7 @@ RSpec.describe Parklife::Build do
 
         expect(build_files).to contain_exactly('bar.html', 'foo.html')
 
-        file_path = File.join(tmpdir, 'bar.html')
+        file_path = File.join(build_dir, 'bar.html')
 
         expect(File.read(file_path)).to eql('bar content')
       end
