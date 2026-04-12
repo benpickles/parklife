@@ -46,7 +46,7 @@ RSpec.describe Parklife::Application do
           File.stat(tmpdir).ino
         }
 
-        expect(Dir.glob('**/*', File::FNM_DOTMATCH, base: tmpdir)).to eql(['.'])
+        expect(build_files).to be_empty
       end
     end
 
