@@ -5,6 +5,7 @@ require 'uri'
 
 module Parklife
   class Config
+    CACHE_TMPDIR = 'tmp/parklife/cache'
     DEFAULT_HOST = 'example.com'
     DEFAULT_SCHEME = 'http'
 

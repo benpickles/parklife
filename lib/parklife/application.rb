@@ -29,11 +29,8 @@ module Parklife
     def build
       raise RackAppNotDefinedError if config.app.nil?
 
-      if config.build_dir.directory?
-        FileUtils.rm_rf(config.build_dir.children)
-      else
-        config.build_dir.mkdir
-      end
+      prepare_cache_dir if config.cache_dir
+      prepare_build_dir
 
       @before_build_callbacks.each do |callback|
         callback.call(self)
@@ -70,5 +67,37 @@ module Parklife
         @route_set
       end
     end
+
+    private
+      def prepare_build_dir
+        if config.build_dir.directory?
+          FileUtils.rm_rf(config.build_dir.children)
+        else
+          config.build_dir.mkdir
+        end
+      end
+
+      def prepare_cache_dir
+        # Nothing to do unless the previous build is being used as a cache.
+        return unless config.cache_dir.expand_path == config.build_dir.expand_path
+
+        if config.build_dir.exist?
+          config.cache_dir = Config::CACHE_TMPDIR
+
+          if config.cache_dir.exist?
+            config.cache_dir.rmtree
+          else
+            config.cache_dir.dirname.mkpath
+          end
+
+          # Move the existing previous build to the tmp location to clear the
+          # way for a fresh new build.
+          config.build_dir.rename(config.cache_dir)
+        else
+          # The build/cache directories are set to the same thing but don't
+          # exist so there is no cache.
+          config.cache_dir = nil
+        end
+      end
   end
 end
