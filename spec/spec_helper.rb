@@ -21,4 +21,14 @@ RSpec.configure do |config|
 
   config.order = :random
   Kernel.srand(config.seed)
+
+  def build_files
+    Dir.glob(
+      '**/*',
+      File::FNM_DOTMATCH,
+      base: build_dir,
+    ).select { |path|
+      File.file?(File.join(build_dir, path))
+    }
+  end
 end

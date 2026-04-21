@@ -1,97 +1,66 @@
 # frozen_string_literal: true
-require 'parklife/browser'
-require 'parklife/build'
-require 'parklife/route'
-require 'parklife/utils'
 require 'set'
+require_relative 'browser'
+require_relative 'build'
+require_relative 'responder/not_found'
+require_relative 'responder/ok'
+require_relative 'responder/redirect'
+require_relative 'responder/unknown'
+require_relative 'route'
 
 module Parklife
   class Crawler
-    attr_reader :browser, :build, :config, :route_set
+    RESPONDERS = {
+      200 => Responder::Ok,
+      301 => Responder::Redirect,
+      302 => Responder::Redirect,
+      404 => Responder::NotFound,
+    }
 
-    def initialize(config, route_set)
+    attr_reader :browser, :build, :config, :routes, :visited
+
+    def initialize(config, routes)
       @config = config
-      @route_set = route_set
+      @routes = routes.to_a
       @browser = Browser.new(config.app, config.base)
       @build = Build.new(config.build_dir, nested_index: config.nested_index)
+      @visited = Set.new
+      @responder_for_status = {}
     end
 
     def get(path)
       browser.get(path)
     end
 
-    def start
-      @routes = route_set.to_a
-      @visited = Set.new
+    def responder_for_status(status)
+      @responder_for_status[status] ||= RESPONDERS
+        .fetch(status, Responder::Unknown)
+        .new(self)
+    end
 
-      while (route = @routes.shift)
-        processed = process_route(route)
-        config.reporter.print('.') if processed
+    def start
+      while (route = routes.shift)
+        next if visited?(route)
+        response = get(route.path)
+        @visited << route
+        responder_for_status(response.status).call(route, response)
+        config.reporter.print('.')
       end
 
       config.reporter.puts
     end
 
-    private
-      def process_route(route)
-        already_processed = if route.crawl
-          # No need to re-process an already-crawled route (but do re-process
-          # a route that has been visited but not crawled).
-          @visited.include?(route)
-        else
-          # This route isn't being crawled so there's no need to re-process
-          # it if it has already been visited or crawled.
-          crawled_route = Route.new(route.path, crawl: true)
-          @visited.include?(route) || @visited.include?(crawled_route)
-        end
-
-        return false if already_processed
-
-        response = get(route.path)
-
-        case response.status
-        when 200
-          build.add(route, response)
-        when 301, 302
-          raise HTTPRedirectError.new(
-            response.status,
-            browser.uri_for(route.path),
-            response.headers['location']
-          )
-        when 404
-          case config.on_404
-          when :warn
-            $stderr.puts HTTPError.new(404, route.path).message
-          when :skip
-            return false
-          else
-            raise HTTPError.new(404, route.path)
-          end
-        else
-          raise HTTPError.new(response.status, route.path)
-        end
-
-        @visited << route
-
-        if route.crawl
-          Utils.scan_for_links(response.body) do |path|
-            # When an app is mounted at a path it responds to URLs that must
-            # exclude the mount path but it generates links that include it (if
-            # it is correctly configured). This prefix must therefore be
-            # stripped from links discovered via crawling.
-            baseless_path = path.delete_prefix(config.base.path)
-
-            route = Route.new(baseless_path, crawl: true)
-
-            # Don't revisit the route if it has already been visited with
-            # crawl=true but do revisit if it wasn't crawled.
-            next if @visited.include?(route)
-
-            @routes << route
-          end
-        end
-
-        true
+    def visited?(route)
+      if route.crawl
+        # A crawl=true route is only counted as visited when it has already been
+        # crawled, if it's been visited by a non-crawl route then it must be
+        # visited again so it can be crawled.
+        @visited.include?(route)
+      else
+        # A crawl=false route is counted as visited whether it was previously
+        # visited with either a crawl or non-crawl route.
+        @visited.include?(route) || @visited.include?(route.with_crawl)
       end
+    end
   end
 end

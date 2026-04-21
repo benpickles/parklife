@@ -21,5 +21,9 @@ module Parklife
     def inspect
       %(<#{self.class.name} path="#{path}" crawl="#{crawl}">)
     end
+
+    def with_crawl
+      crawl ? self : self.class.new(path, crawl: true)
+    end
   end
 end
