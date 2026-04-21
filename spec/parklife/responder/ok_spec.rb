@@ -8,7 +8,7 @@ RSpec.describe Parklife::Responder::Ok do
     c.build_dir = build_dir
     c
   }
-  let(:crawler) { Parklife::Crawler.new(config, []) }
+  let(:crawler) { Parklife::Crawler.new(config, [], nil) }
   let(:response) { Rack::MockResponse.new(200, {}, '<a href="/bar">bar</a> <a href="/baz">baz</a>') }
 
   context 'with a non-crawl route' do

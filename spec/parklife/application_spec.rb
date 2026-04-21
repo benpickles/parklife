@@ -1,24 +1,21 @@
-require 'parklife/application'
+require 'digest'
 require 'tmpdir'
+require 'parklife/application'
 
 RSpec.describe Parklife::Application do
   describe '#build' do
-    let(:endpoint_200) { Proc.new { [200, {}, ['200']] } }
-    let(:endpoint_302) { Proc.new { [302, { 'Location' => 'http://example.com/' }, ['302']] } }
-    let(:endpoint_500) { Proc.new { [500, {}, ['500']] } }
+    subject(:application) { described_class.new }
+
+    let(:app) { Proc.new { [200, {}, ['200']] } }
+    let(:config) { application.config }
     let(:tmpdir) { Dir.mktmpdir }
 
-    subject {
-      described_class.new.tap { |application|
-        application.configure do |config|
-          config.app = app
-          config.build_dir = build_dir
-        end
-      }
-    }
+    before do
+      config.app = app
+      config.build_dir = build_dir
+    end
 
     context 'when config.build_dir does not exist' do
-      let(:app) { endpoint_200 }
       let(:build_dir) { File.join(tmpdir, 'foo') }
 
       it 'it is created' do
@@ -31,10 +28,11 @@ RSpec.describe Parklife::Application do
     end
 
     context 'when config.build_dir already exists' do
-      let(:app) { endpoint_200 }
       let(:build_dir) { tmpdir }
 
-      it 'it remains and its contents are removed' do
+      it 'remains but its contents are removed' do
+        subject.config.skip_build_meta = true
+
         FileUtils.touch(File.join(tmpdir, 'foo.html'))
         FileUtils.mkdir_p(File.join(tmpdir, 'nested', 'directory'))
         FileUtils.touch(File.join(tmpdir, 'nested', 'directory', 'bar.html'))
@@ -62,7 +60,6 @@ RSpec.describe Parklife::Application do
     end
 
     context 'with callbacks' do
-      let(:app) { endpoint_200 }
       let(:build_dir) { tmpdir }
 
       it 'they are called in the correct order' do
@@ -74,6 +71,133 @@ RSpec.describe Parklife::Application do
         subject.build
 
         expect(stuff).to eql([1, 2])
+      end
+    end
+
+    context 'when build_dir and cache_dir are the same (i.e. the previous build is used as the cache)' do
+      let(:app) {
+        Proc.new { |env|
+          html = case env['PATH_INFO']
+          when '/'
+            '<a href="/foo">foo</a>'
+          when '/foo'
+            foo_body
+          else
+            '200'
+          end
+
+          etag = Digest::MD5.hexdigest(html)
+          headers = { 'etag' => etag }
+
+          if env['HTTP_IF_NONE_MATCH'] == etag
+            [304, headers, ['']]
+          else
+            [200, headers, [html]]
+          end
+        }
+      }
+      let(:build_dir) { 'build' }
+      let(:cache_dir) { build_dir }
+      let(:foo_body) { 'foo' }
+
+      around do |example|
+        Dir.chdir(tmpdir) do
+          config.cache_dir = cache_dir
+          subject.routes.root crawl: true
+          example.run
+        end
+      end
+
+      context 'and build_dir/cache_dir exist' do
+        before do
+          config.build_dir.mkpath
+        end
+
+        context 'and includes build metadata' do
+          before do
+            build = Parklife::Build.new(
+              config.build_dir,
+              nested_index: config.nested_index,
+            )
+            build.add(
+              Parklife::Route.new('/foo', crawl: false),
+              Rack::MockResponse.new(
+                200,
+                { 'etag' => Digest::MD5.hexdigest(foo_body) },
+                '<a href="/bar">bar</a>' # Link to another page in the cache.
+              )
+
+            )
+            build.write_meta
+          end
+
+          context 'and the tmp cache directory does not already exist' do
+            it 'the previous build is moved to a tmp directory and used as the cache_dir' do
+              subject.build
+
+              expect(build_files).to contain_exactly(
+                '.parklife/build.yml',
+                'bar/index.html', # Page linked from cache.
+                'foo/index.html',
+                'index.html',
+              )
+            end
+          end
+
+          context 'but the tmp cache directory already exists' do
+            before do
+              cache_tmpdir = Parklife::Config::CACHE_TMPDIR
+              FileUtils.mkpath(cache_tmpdir)
+              FileUtils.touch(File.join(cache_tmpdir, 'delete-me.html'))
+            end
+
+            it 'the tmp cache directory is replaced by the existing build/cache and used as the cache_dir' do
+              subject.build
+
+              expect(build_files).to contain_exactly(
+                '.parklife/build.yml',
+                'bar/index.html', # Page linked from cache.
+                'foo/index.html',
+                'index.html',
+              )
+            end
+          end
+
+          context 'when build_dir/cache_dir point to the same directory but are formatted differently' do
+            let(:cache_dir) { './build/' }
+
+            it 'recognises that the paths match and works as expected' do
+              subject.build
+
+              expect(build_files).to contain_exactly(
+                '.parklife/build.yml',
+                'bar/index.html', # Page linked from cache.
+                'foo/index.html',
+                'index.html',
+              )
+            end
+          end
+        end
+
+        context 'but does not include build metadata' do
+          it 'builds without the cache' do
+            subject.build
+
+            expect(build_files).to contain_exactly(
+              '.parklife/build.yml',
+              'foo/index.html',
+              'index.html',
+            )
+          end
+        end
+      end
+
+      context 'but build_dir/cache_dir does not exist' do
+        it 'cache_dir is unset' do
+          subject.build
+
+          expect(subject.config.cache_dir).to be_nil
+        end
       end
     end
   end

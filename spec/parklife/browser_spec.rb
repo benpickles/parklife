@@ -16,8 +16,10 @@ RSpec.describe Parklife::Browser do
           env['rack.url_scheme'],
           env['HTTP_HOST'],
           env['PATH_INFO'],
-          request.url
-        ].join(',')
+          request.url,
+          request.get_header('HTTP_IF_NONE_MATCH'),
+          request.get_header('HTTP_FOO'),
+        ].compact.join("\n")
 
         [status, {}, [body]]
       }
@@ -29,11 +31,25 @@ RSpec.describe Parklife::Browser do
 
       it do
         response = browser.get('/foo')
-        expect(response.body).to eql('http,example.com,/foo,http://example.com/foo')
+        expect(response.body).to eql(
+          <<~TEXT.chomp
+            http
+            example.com
+            /foo
+            http://example.com/foo
+          TEXT
+        )
         expect(response.status).to eql(200)
 
         response = browser.get('/404')
-        expect(response.body).to eql('http,example.com,/404,http://example.com/404')
+        expect(response.body).to eql(
+          <<~TEXT.chomp
+            http
+            example.com
+            /404
+            http://example.com/404
+          TEXT
+        )
         expect(response.status).to eql(404)
       end
     end
@@ -43,16 +59,52 @@ RSpec.describe Parklife::Browser do
 
       it 'strips it from the passed path' do
         response = browser.get('/baz')
-        expect(response.body).to eql('https,foo.example.com,/baz,https://foo.example.com/bar/baz')
+        expect(response.body).to eql(
+          <<~TEXT.chomp
+            https
+            foo.example.com
+            /baz
+            https://foo.example.com/bar/baz
+          TEXT
+        )
       end
     end
 
-    context 'when the base has a non-standard port' do
+    context 'when the base has a non-standard port', :focus do
       let(:base) { URI.parse('http://localhost:3000') }
 
       it do
         response = browser.get('/foo')
-        expect(response.body).to eql('http,localhost:3000,/foo,http://localhost:3000/foo')
+        expect(response.body).to eql(
+          <<~TEXT.chomp
+            http
+            localhost:3000
+            /foo
+            http://localhost:3000/foo
+          TEXT
+        )
+      end
+    end
+
+    context 'when passing Rack headers' do
+      let(:base) { URI.parse('http://example.com') }
+
+      it 'they are included in the request' do
+        response = browser.get('/foo', headers: {
+          'HTTP_FOO' => 'foo',
+          'HTTP_IF_NONE_MATCH' => 'qwerty',
+        })
+
+        expect(response.body).to eql(
+          <<~TEXT.chomp
+            http
+            example.com
+            /foo
+            http://example.com/foo
+            qwerty
+            foo
+          TEXT
+        )
       end
     end
   end

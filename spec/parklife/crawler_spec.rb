@@ -1,10 +1,12 @@
+require 'digest'
+require 'tmpdir'
 require 'parklife/config'
 require 'parklife/crawler'
 require 'parklife/route_set'
-require 'tmpdir'
 
 RSpec.describe Parklife::Crawler do
   let(:build_dir) { Dir.mktmpdir }
+  let(:cache) { nil }
   let(:config) {
     Parklife::Config.new.tap { |config|
       config.app = app
@@ -21,13 +23,13 @@ RSpec.describe Parklife::Crawler do
   }
   let(:route_set) { Parklife::RouteSet.new }
 
-  subject { described_class.new(config, route_set) }
+  subject { described_class.new(config, route_set, cache) }
 
   after do
     FileUtils.remove_entry_secure(build_dir)
   end
 
-  context 'with standard config' do
+  context 'with default config' do
     let(:app) { endpoint_200 }
 
     it do
@@ -36,11 +38,26 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      expect(build_files).to match_array(['foo/index.html', 'index.html'])
+      expect(build_files).to contain_exactly(
+        '.parklife/build.yml',
+        'foo/index.html',
+        'index.html',
+      )
 
       index = File.join(build_dir, 'index.html')
 
       expect(File.read(index)).to eql('200')
+    end
+  end
+
+  context 'when config.skip_build_meta=true' do
+    let(:app) { endpoint_200 }
+
+    it 'does not include metadata with the build' do
+      config.skip_build_meta = true
+      route_set.get '/foo'
+      subject.start
+      expect(build_files).to eql(['foo/index.html'])
     end
   end
 
@@ -57,12 +74,13 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      expect(build_files).to match_array([
+      expect(build_files).to contain_exactly(
+        '.parklife/build.yml',
         'foo.html',
         'foo.xml',
         'index.html',
         'nested/foo.html',
-      ])
+      )
     end
   end
 
@@ -71,6 +89,7 @@ RSpec.describe Parklife::Crawler do
 
     it do
       config.base = 'https://foo.example.com'
+      config.skip_build_meta = true
 
       route_set.get '/'
 
@@ -90,7 +109,7 @@ RSpec.describe Parklife::Crawler do
     it 'the build still occurs' do
       subject.start
 
-      expect(build_files).to be_empty
+      expect(build_files).to eql(['.parklife/build.yml'])
     end
   end
 
@@ -122,14 +141,15 @@ RSpec.describe Parklife::Crawler do
 
       subject.start
 
-      expect(build_files).to match_array([
+      expect(build_files).to contain_exactly(
+        '.parklife/build.yml',
         'another/index.html',
         'bar/index.html',
         'baz/index.html',
         'foo/index.html',
         'index.html',
         'other/index.html',
-      ])
+      )
     end
   end
 
@@ -167,6 +187,7 @@ RSpec.describe Parklife::Crawler do
       subject.start
 
       expect(build_files).to match_array([
+        '.parklife/build.yml',
         'index.html',
         'foo/index.html',
         'bar/index.html',
@@ -202,6 +223,8 @@ RSpec.describe Parklife::Crawler do
     end
 
     it 'is used' do
+      config.skip_build_meta = true
+
       route_set.get '/'
 
       subject.start
@@ -211,6 +234,64 @@ RSpec.describe Parklife::Crawler do
       index = File.join(build_dir, 'index.html')
 
       expect(File.read(index)).to eql("I'm a teapot")
+    end
+  end
+
+  context 'when a cache with matching path/ETag is present' do
+    let(:app) {
+      Proc.new { |env|
+        html = case env['PATH_INFO']
+        when '/'
+          '<a href="/foo">foo</a>'
+        when '/foo'
+          'foo'
+        else
+          'bar'
+        end
+
+        # It doesn't matter that this isn't a proper ETag, it's just a string.
+        etag = Digest::MD5.hexdigest(html)
+        headers = { 'etag' => etag }
+
+        if env['HTTP_IF_NONE_MATCH'] == etag
+          [304, headers, ['']]
+        else
+          [200, headers, [html]]
+        end
+      }
+    }
+    let(:cache) { Parklife::Build.new(config.cache_dir, nested_index: !config.nested_index) }
+    let(:cache_dir) { Dir.mktmpdir }
+    let(:cached_content) { '<a href="/bar">bar</a>' }
+
+    before do
+      config.cache_dir = cache_dir
+
+      cache.add(
+        Parklife::Route.new('/foo', crawl: true),
+        Rack::MockResponse.new(
+          200,
+          { 'etag' => Digest::MD5.hexdigest('foo') },
+          cached_content
+        )
+      )
+    end
+
+    it 'is used and crawled' do
+      route_set.get '/', crawl: true
+
+      subject.start
+
+      expect(build_files).to contain_exactly(
+        '.parklife/build.yml',
+        'bar/index.html', # This is only linked to from the cached content.
+        'foo/index.html',
+        'index.html',
+      )
+
+      expect(
+        subject.build.dir.join('foo/index.html').read
+      ).to eql(cached_content)
     end
   end
 end

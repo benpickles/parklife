@@ -11,7 +11,11 @@ module Parklife
     class_option :base, desc: 'Override config.base configured in the Parkfile'
 
     desc 'build', 'Create a production build'
+    option :cache_dir, desc: 'Path to an existing build directory (must include build meta)', type: :string
+    option :skip_build_meta, desc: 'Do not include Parklife build metadata', type: :boolean
     def build
+      application.config.cache_dir = options[:cache_dir] if options.key?(:cache_dir)
+      application.config.skip_build_meta = options[:skip_build_meta] if options.key?(:skip_build_meta)
       application.build
     end
 
