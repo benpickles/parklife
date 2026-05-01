@@ -76,9 +76,9 @@ module Parklife
         config.reporter.print('.')
       end
 
-      build.write_meta unless config.skip_build_meta
-
       config.reporter.puts
+    ensure
+      build.write_meta unless config.skip_build_meta
     end
 
     def visited?(route)
