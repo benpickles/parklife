@@ -294,4 +294,18 @@ RSpec.describe Parklife::Crawler do
       ).to eql(cached_content)
     end
   end
+
+  context 'when the app raises an exception' do
+    let(:app) { Proc.new { raise 'bang' } }
+
+    it 'build metadata is still written' do
+      route_set.get '/'
+
+      expect {
+        subject.start
+      }.to raise_error(RuntimeError, 'bang')
+
+      expect(build_files).to contain_exactly('.parklife/build.yml')
+    end
+  end
 end
