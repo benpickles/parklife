@@ -72,11 +72,11 @@ module Parklife
         next if visited?(route)
         response = get(route.path)
         @visited << route
+        config.reporter.visit(route, response)
         responder_for_status(response.status).call(route, response)
-        config.reporter.print('.')
       end
 
-      config.reporter.puts
+      config.reporter.finish
     ensure
       build.write_meta unless config.skip_build_meta
     end

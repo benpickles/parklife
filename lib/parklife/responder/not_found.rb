@@ -9,7 +9,9 @@ module Parklife
         when :skip
           # No-op.
         when :warn
-          $stderr.puts HTTPError.new(response.status, route.path).message
+          crawler.config.logger.warn(
+            HTTPError.new(response.status, route.path).message
+          )
         else
           raise HTTPError.new(response.status, route.path)
         end

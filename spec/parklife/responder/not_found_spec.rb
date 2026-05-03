@@ -4,14 +4,9 @@ RSpec.describe Parklife::Responder::NotFound do
 
   let(:config) { Parklife::Config.new }
   let(:crawler) { instance_double('Parklife::Crawler', config: config) }
+  let(:logger) { config.logger }
   let(:response) { Rack::MockResponse.new(404, {}, '') }
   let(:route) { Parklife::Route.new('/404', crawl: false) }
-
-  around do |example|
-    old_stderr, $stderr = $stderr, StringIO.new
-    example.run
-    $stderr = old_stderr
-  end
 
   context 'when on_404=:error' do
     before { config.on_404 = :error }
@@ -26,18 +21,18 @@ RSpec.describe Parklife::Responder::NotFound do
   context 'with config.on_404=:skip' do
     before { config.on_404 = :skip }
 
-    it 'does not output anything to stderr' do
+    it 'does nothing' do
+      expect(logger).not_to receive(:warn)
       subject.call(route, response)
-      expect($stderr.string).to be_empty
     end
   end
 
   context 'with on_404=:warn' do
     before { config.on_404 = :warn }
 
-    it 'prints a warning to stderr' do
+    it 'a warning is sent to the logger' do
+      expect(logger).to receive(:warn).with('404 response from path "/404"')
       subject.call(route, response)
-      expect($stderr.string.chomp).to eql('404 response from path "/404"')
     end
   end
 end

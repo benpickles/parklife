@@ -11,27 +11,31 @@ module Parklife
     class_option :base, desc: 'Override config.base configured in the Parkfile'
 
     desc 'build', 'Create a production build'
-    option :cache_dir, desc: 'Path to an existing build directory (must include build meta)', type: :string
+    option :cache_dir, desc: 'Path to an existing build directory (which must include build meta)', type: :string
+    option :no_colour, aliases: '--no-color', desc: "Don't include colours in terminal output", type: :boolean
+    option :reporter, desc: 'Output formatter: log (one line per visited route), null (only errors), progress (dots)'
     option :skip_build_meta, desc: 'Do not include Parklife build metadata', type: :boolean
     def build
       application.config.cache_dir = options[:cache_dir] if options.key?(:cache_dir)
+      application.config.no_colour = options[:no_colour] if options.key?(:no_colour)
+      application.config.reporter = options[:reporter] if options.key?(:reporter)
       application.config.skip_build_meta = options[:skip_build_meta] if options.key?(:skip_build_meta)
       application.build
     end
 
     desc 'config', 'Output the full Parklife config'
     def config
-      reporter = application.config.reporter
-
       shell.print_table([
         ['app', application.config.app.inspect],
         ['base', application.config.base.to_s],
         ['build_dir', application.config.build_dir],
+        ['cache_dir', application.config.cache_dir],
         ['nested_index', application.config.nested_index],
+        ['no_colour', application.config.no_colour],
         ['on_404', application.config.on_404.inspect],
         ['parklife-rails', defined?(::Parklife::Rails) ? 'enabled' : '-'],
         ['parklife-sinatra', defined?(::Parklife::Sinatra) ? 'enabled' : '-'],
-        ['reporter', reporter == $stdout ? '$stdout' : reporter],
+        ['reporter', application.config.reporter],
       ])
     end
 
@@ -69,8 +73,8 @@ module Parklife
     private
       def application
         @application ||= Parklife.application.tap { |app|
-          # Default output to stdout (can be overridden in the Parkfile).
-          app.config.reporter = $stdout
+          # Default to dots for progress (can be overridden in the Parkfile).
+          app.config.reporter = 'progress'
 
           # Reach inside the consuming app's directory to apply its Parklife
           # config.
