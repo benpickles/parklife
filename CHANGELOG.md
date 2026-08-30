@@ -1,4 +1,10 @@
-<!-- ## Unreleased -->
+ ## Unreleased 
+
+- Configurable behaviour when encountering a 301/302. Possible values are:
+
+  - `:error` (default) - raise an exception which stops the build.
+  - `:skip` - do not save the response, continue processing.
+  - `:warn` - output a message to `stderr`, do not save the response, continue processing.
 
 ## Version 0.9.0 - 2026-05-16
 

@@ -114,6 +114,21 @@ The build directory's contents are removed before each build. Defaults to `build
 Parklife.application.config.build_dir = 'my/build/dir'
 ```
 
+### Handling redirects (301/302 responses)
+
+By default if Parklife encounters a 301/302 response when fetching a route it will raise an exception which stops the build (the `:error` setting).
+
+Possible values are:
+
+- `:error` (default) - raise an exception which stops the build.
+- `:skip` - do not save the response, continue processing.
+- `:warn` - output a message to `stderr`, do not save the response, continue processing.
+
+```ruby
+Parklife.application.config.on_301 = :warn
+Parklife.application.config.on_302 = :warn
+```
+
 ### Handling a 404
 
 By default if Parklife encounters a 404 response when fetching a route it will raise an exception which stops the build (the `:error` setting).
