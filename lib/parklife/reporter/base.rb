@@ -6,6 +6,8 @@ module Parklife
     class Base
       STATUS_COLOUR = {
         200 => :green,
+        301 => :yellow,
+        302 => :yellow,
         304 => :blue,
         404 => :yellow,
       }

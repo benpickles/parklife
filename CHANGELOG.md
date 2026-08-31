@@ -1,4 +1,19 @@
-<!-- ## Unreleased -->
+ ## Unreleased 
+
+- Configurable behaviour when encountering a 301/302. <https://github.com/benpickles/parklife/pull/145>
+
+  Possible values are:
+
+  - `:error` (default) - raise an exception which stops the build.
+  - `:skip` - do not save the response, continue processing.
+  - `:warn` - output a message to `stderr`, do not save the response, continue processing.
+
+  Set the behaviour for each status:
+
+  ```ruby
+  Parklife.application.config.on_301 = :warn
+  Parklife.application.config.on_302 = :warn
+  ```
 
 ## Version 0.9.0 - 2026-05-16
 

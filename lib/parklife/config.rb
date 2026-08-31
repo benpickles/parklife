@@ -13,7 +13,8 @@ module Parklife
     DEFAULT_HOST = 'example.com'
     DEFAULT_SCHEME = 'http'
 
-    attr_accessor :app, :logger, :nested_index, :on_404, :skip_build_meta
+    attr_accessor :app, :logger, :nested_index, :on_301, :on_302, :on_404,
+      :skip_build_meta
     attr_reader :base, :build_dir, :cache_dir, :no_colour, :reporter
 
     def initialize
@@ -23,6 +24,8 @@ module Parklife
       self.logger = Logger.new
       self.nested_index = true
       self.no_colour = false
+      self.on_301 = :error
+      self.on_302 = :error
       self.on_404 = :error
       self.reporter = 'null'
       self.skip_build_meta = false
