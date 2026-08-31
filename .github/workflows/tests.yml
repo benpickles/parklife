@@ -18,7 +18,7 @@ jobs:
           - '4.0'
     name: RSpec (Ruby ${{ matrix.ruby }})
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     name: RuboCop
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
