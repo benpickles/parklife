@@ -6,6 +6,13 @@
   - `:skip` - do not save the response, continue processing.
   - `:warn` - output a message to `stderr`, do not save the response, continue processing.
 
+  Set the behaviour for each status:
+
+  ```ruby
+  Parklife.application.config.on_301 = :warn
+  Parklife.application.config.on_302 = :warn
+  ```
+
 ## Version 0.9.0 - 2026-05-16
 
 - Introduce the log reporter and add colour to the output by default (or pass `--no-colour` to disable). Pass `--reporter log` to the build) Supported reporters are `log` (one line per visited route), `null` (only errors), and `progress` (dots). <https://github.com/benpickles/parklife/pull/138>
