@@ -1,6 +1,8 @@
  ## Unreleased 
 
-- Configurable behaviour when encountering a 301/302. Possible values are:
+- Configurable behaviour when encountering a 301/302. <https://github.com/benpickles/parklife/pull/145>
+
+  Possible values are:
 
   - `:error` (default) - raise an exception which stops the build.
   - `:skip` - do not save the response, continue processing.
